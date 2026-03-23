@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Arbol/assets/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.8.0/fonts/remixicon.css" rel="stylesheet"/>
+    <title>Header</title>
+</head>
+<body>
+    <!--Iconos-->
+    <header class="header">
+        <nav class="nav container">
+            <div class="nav-data">
+                <a href="/Arbol/index.php" class="nav-logo">
+                    <i class="ri-tree-fill"></i>Apadrina un Árbol
+                </a>
+
+                <div class="nav-toggle" id="nav-toggle">
+                    <i class="ri-menu-line nav-burger"></i>
+                    <i class="ri-close-line nav-close"></i>
+                </div>
+            </div>
+
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                <li><a href="/Arbol/index.php" class="nav-link">Inicio</a></li>
+                <li><a href="/Arbol/pages/about.php" class="nav-link">Sobre Nosotros</a></li> 
+                <li><a href="/Arbol/pages/catalogo.php" class="nav-link">Catalogo</a></li> 
+                <li><a href="/Arbol/pages/colab.php" class="nav-link">Colaboradores</a></li> 
+            <!--DROPDOWN 1-->
+                <li class="dropdown-item">
+                        <div class="nav-link">
+                        Cuenta<i class="ri-arrow-down-s-line dropdown-arrow"></i>
+                        </div>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="/Arbol/pages/cuenta-usuario.php" class="dropdown-link">
+                                <i class="ri-user-line"></i>Mi Perfil 
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/Arbol/pages/login.php" class="dropdown-link">
+                                    <i class="ri-lock-line"></i> Iniciar Sesión   
+                                </a>
+                                
+                            </li>
+                            <li>
+                                <a href="/Arbol/pages/registro.php" class="dropdown-link">
+                                    <i class="ri-lock-line"></i> Registrarse 
+                                </a>
+            
+                            </li>
+                        </ul>
+                    </li>  
+
+                <!-- <li><a href="#" class="nav-link">Donaciones</a></li>  -->
+                    <li><a href="/Arbol/pages/contactanos.php" class="nav-link">Contactanos</a></li> 
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <script src="/Arbol/assets/js/menu.js"></script>    
+</body>
+</html>
