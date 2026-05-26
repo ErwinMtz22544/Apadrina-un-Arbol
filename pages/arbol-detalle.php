@@ -18,7 +18,7 @@ if($id > 0){
 <style>
     :root { --verde-fuerte: #4a6733; --verde-claro: #5D8736; --gris-borde: #ddd; }
     
-    .container-section-arbol { display: flex; gap: 40px; margin-top: 140px; align-items: flex-start; }
+    .container-section-arbol { display: flex; gap: 40px; margin-top: 80px; align-items: flex-start; }
     .column-left { flex: 1.2; }
     .column-right { flex: 1; }
     .main-img { width: 100%; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
@@ -38,13 +38,12 @@ if($id > 0){
         position: relative; 
         box-sizing: border-box; 
         box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
-        max-height: 90vh; /* Scroll interno para pantallas pequeñas */
+        max-height: 90vh; 
         overflow-y: auto; 
     }
     .modal-card::-webkit-scrollbar { width: 8px; }
     .modal-card::-webkit-scrollbar-thumb { background: var(--verde-claro); border-radius: 10px; }
 
-    /* Botón X superior derecho */
     .close-x { 
         position: absolute; 
         right: 15px; 
@@ -62,14 +61,12 @@ if($id > 0){
     }
     .close-x:hover { color: var(--verde-fuerte); transform: scale(1.1); }
 
-    /* Formulario */
     .label-bold { display: block; font-size: 14px; font-weight: bold; margin: 15px 0 8px; color: #333; }
     .input-field { width: 100%; padding: 12px; border: 1px solid var(--gris-borde); border-radius: 10px; box-sizing: border-box; font-size: 14px; }
     .row-inputs { display: flex; gap: 15px; margin-bottom: 10px; }
     .group-input { flex: 1; }
     .group-input label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 4px; }
 
-    /* Grid de Métodos de Pago */
     .metodo-pago-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
     .pago-card { border: 1px solid var(--gris-borde); border-radius: 12px; padding: 15px 5px; text-align: center; cursor: pointer; transition: 0.3s; background: white; display: flex; flex-direction: column; align-items: center; }
     .pago-card input { display: none; }
@@ -77,7 +74,6 @@ if($id > 0){
     .pago-card span { font-size: 13px; font-weight: 600; color: #333; }
     .pago-card:has(input:checked) { border: 2px solid var(--verde-fuerte); background: #f0fdf4; }
 
-    /* Selectores Adopción */
     .selector-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
     .option-card { border: 1px solid var(--gris-borde); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
     .option-card input { display: none; }
@@ -87,6 +83,10 @@ if($id > 0){
 
     .btn-confirm-pago { width: 100%; background: var(--verde-fuerte); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 15px; transition: 0.3s; }
 </style>
+
+<nav class="breadcrumbs container">
+    <a href="../index.php"> Inicio</a> / <a href="../pages/catalogo.php">Catálogo</a> / <span class="current"><?php echo $arbol['nombre_comun']; ?></span>
+</nav>
 
 <main class="container container-section-arbol">
     <div class="column-left">
@@ -99,14 +99,9 @@ if($id > 0){
 
     <div class="column-right">
         <h1 style="font-size: 2.2rem; margin-bottom: 10px;"><?php echo htmlspecialchars($arbol['nombre_cientifico']); ?></h1>
-        <p style="color: #777; margin-bottom: 30px;">¡Gracias por dar este paso! Estás contribuyendo directamente a un futuro más sostenible.</p>
+        <p style="color: #777; margin-bottom: 30px;">¡Gracias por dar este paso!</p>
         
         <div style="display: flex; gap: 10px; margin-bottom: 40px;">
-            <div style="display: flex; align-items: center; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-                <button id="decrement" style="padding: 10px 15px; border: none; background: #eee; cursor: pointer; font-weight: bold;">-</button>
-                <input type="text" class="input-quantity" value="1" readonly style="width: 40px; text-align: center; border: none; font-weight: bold;">
-                <button id="increment" style="padding: 10px 15px; border: none; background: #eee; cursor: pointer; font-weight: bold;">+</button>
-            </div>
             <button onclick="abrirModal('modalAdopcion')" style="background: #1a3c1a; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; flex: 1; font-weight: bold; font-size: 1rem;">
                 + Adoptar árbol
             </button>
@@ -130,13 +125,13 @@ if($id > 0){
 <div id="modalAdopcion" class="modal-overlay">
     <div class="modal-card">
         <button type="button" class="close-x" onclick="cerrarModal('modalAdopcion')"><i class="ri-close-line"></i></button>
-        <h3 style="color: var(--verde-claro); margin-bottom: 5px;">Apadrina tu próximo Árbol</h3>
+        <h3 style="color: var(--verde-claro);">Apadrina tu próximo Árbol</h3>
         
         <form action="procesar_adopcion.php" method="POST">
             <input type="hidden" name="id_arbol" value="<?php echo $arbol['id_arbol']; ?>">
             
             <label class="label-bold">Nombre para tu futuro árbol</label>
-            <input type="text" name="nombre_personalizado" placeholder="Ej. Roble" required class="input-field">
+            <input type="text" name="nombre_personalizado" placeholder="Ej. Roble" required class="input-field name-restrict" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+">
 
             <label class="label-bold">¿Cómo deseas adoptar?</label>
             <div class="selector-grid">
@@ -146,36 +141,26 @@ if($id > 0){
             </div>
 
             <label class="label-bold">Monto de aportación (MXN)</label>
-            <input type="number" name="monto" value="500" required class="input-field">
+            <input type="number" name="monto" value="100.00" min="1" required class="input-field">
 
             <label class="label-bold">Método de pago</label>
             <div class="metodo-pago-grid">
-                <label class="pago-card">
-                    <input type="radio" name="metodo_pago" value="Tarjeta" checked onchange="toggleFacturacion(this, 'modalAdopcion')">
-                    <i class="ri-visa-line"></i><span>Tarjeta</span>
-                </label>
-                <label class="pago-card">
-                    <input type="radio" name="metodo_pago" value="Oxxo" onchange="toggleFacturacion(this, 'modalAdopcion')">
-                    <i class="ri-store-2-line"></i><span>Oxxo</span>
-                </label>
-                <label class="pago-card">
-                    <input type="radio" name="metodo_pago" value="PayPal" onchange="toggleFacturacion(this, 'modalAdopcion')">
-                    <i class="ri-paypal-line"></i><span>PayPal</span>
-                </label>
+                <label class="pago-card"><input type="radio" name="metodo_pago" value="Tarjeta" checked onchange="toggleFacturacion(this, 'modalAdopcion')"><i class="ri-visa-line"></i><span>Tarjeta</span></label>
+                <label class="pago-card"><input type="radio" name="metodo_pago" value="Oxxo" onchange="toggleFacturacion(this, 'modalAdopcion')"><i class="ri-store-2-line"></i><span>Oxxo</span></label>
+                <label class="pago-card"><input type="radio" name="metodo_pago" value="PayPal" onchange="toggleFacturacion(this, 'modalAdopcion')"><i class="ri-paypal-line"></i><span>PayPal</span></label>
             </div>
 
             <div class="seccion-datos-tarjeta">
                 <label class="label-bold">Datos de facturación</label>
                 <div class="row-inputs">
-                    <div class="group-input"><label>Número de Tarjeta</label><input type="text" name="num_tarjeta" class="card-mask input-field" placeholder="0000 0000 0000 0000" maxlength="19"></div>
-                    <div class="group-input"><label>Nombre del Facturador</label><input type="text" placeholder="Ej. Bruno Diaz" class="input-field"></div>
+                    <div class="group-input"><label>Número de Tarjeta</label><input type="text" name="num_tarjeta" class="card-mask input-field" placeholder="0000 0000 0000 0000" maxlength="19" required></div>
+                    <div class="group-input"><label>Nombre del Facturador</label><input type="text" class="input-field name-restrict" placeholder="Ej. Bruno Diaz" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+" required></div>
                 </div>
                 <div class="row-inputs">
-                    <div class="group-input"><label>Expira en</label><input type="text" placeholder="MM/YY" maxlength="5" class="input-field expiry-mask"></div>
-                    <div class="group-input"><label>CVV</label><input type="password" placeholder="CVC" maxlength="3" class="input-field"></div>
+                    <div class="group-input"><label>Expira en</label><input type="text" placeholder="MM/YY" maxlength="5" class="input-field expiry-mask" required></div>
+                    <div class="group-input"><label>CVV</label><input type="password" placeholder="CVC" maxlength="3" class="input-field cvv-restrict" pattern="\d{3}" required></div>
                 </div>
             </div>
-
             <button type="submit" class="btn-confirm-pago">Apadrinar Ahora</button>
         </form>
     </div>
@@ -184,44 +169,32 @@ if($id > 0){
 <div id="modalDonar" class="modal-overlay">
     <div class="modal-card">
         <button type="button" class="close-x" onclick="cerrarModal('modalDonar')"><i class="ri-close-line"></i></button>
-        <h3 style="color: var(--verde-claro); margin-bottom: 5px;">Hacer una Donación</h3>
-        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Para el mantenimiento de: <strong><?php echo $arbol['nombre_comun']; ?></strong></p>
-        
+        <h3 style="color: var(--verde-claro);">Hacer una Donación</h3>
         <form action="procesar_adopcion.php" method="POST">
             <input type="hidden" name="id_arbol" value="<?php echo $arbol['id_arbol']; ?>">
             <input type="hidden" name="tipo_adopcion" value="Donación">
 
             <label class="label-bold">¿Cuánto deseas donar?</label>
-            <input type="number" name="monto" placeholder="Monto libre (MXN)" required class="input-field">
+            <input type="number" name="monto" min="1" placeholder="Monto libre (MXN)" required class="input-field">
 
             <label class="label-bold">Método de pago</label>
             <div class="metodo-pago-grid">
-                <label class="pago-card">
-                    <input type="radio" name="metodo_pago" value="Tarjeta" checked onchange="toggleFacturacion(this, 'modalDonar')">
-                    <i class="ri-visa-line"></i><span>Tarjeta</span>
-                </label>
-                <label class="pago-card">
-                    <input type="radio" name="metodo_pago" value="Oxxo" onchange="toggleFacturacion(this, 'modalDonar')">
-                    <i class="ri-store-2-line"></i><span>Oxxo</span>
-                </label>
-                <label class="pago-card">
-                    <input type="radio" name="metodo_pago" value="PayPal" onchange="toggleFacturacion(this, 'modalDonar')">
-                    <i class="ri-paypal-line"></i><span>PayPal</span>
-                </label>
+                <label class="pago-card"><input type="radio" name="metodo_pago" value="Tarjeta" checked onchange="toggleFacturacion(this, 'modalDonar')" ><i class="ri-visa-line"></i><span>Tarjeta</span></label>
+                <label class="pago-card"><input type="radio" name="metodo_pago" value="Oxxo" onchange="toggleFacturacion(this, 'modalDonar')"><i class="ri-store-2-line"></i><span>Oxxo</span></label>
+                <label class="pago-card"><input type="radio" name="metodo_pago" value="PayPal" onchange="toggleFacturacion(this, 'modalDonar')"><i class="ri-paypal-line"></i><span>PayPal</span></label>
             </div>
 
             <div class="seccion-datos-tarjeta">
                 <label class="label-bold">Datos de facturación</label>
                 <div class="row-inputs">
-                    <div class="group-input"><label>Número de Tarjeta</label><input type="text" name="num_tarjeta" class="card-mask input-field" placeholder="0000 0000 0000 0000" maxlength="19"></div>
-                    <div class="group-input"><label>Nombre del Facturador</label><input type="text" placeholder="Ej. Bruno Diaz" class="input-field"></div>
+                    <div class="group-input"><label>Número de Tarjeta</label><input type="text" name="num_tarjeta" class="card-mask input-field" placeholder="0000 0000 0000 0000" maxlength="19" required></div>
+                    <div class="group-input"><label>Nombre del Facturador</label><input type="text" class="input-field name-restrict" placeholder="Ej. Bruno Diaz" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+" required></div>
                 </div>
                 <div class="row-inputs">
-                    <div class="group-input"><label>Expira en</label><input type="text" placeholder="MM/YY" maxlength="5" class="input-field expiry-mask"></div>
-                    <div class="group-input"><label>CVV</label><input type="password" placeholder="Número de seguridad" maxlength="3" class="input-field"></div>
+                    <div class="group-input"><label>Expira en</label><input type="text" placeholder="MM/YY" maxlength="5" class="input-field expiry-mask" required></div>
+                    <div class="group-input"><label>CVV</label><input type="password" placeholder="CVC" maxlength="3" class="input-field cvv-restrict" pattern="\d{3}" required></div>
                 </div>
             </div>
-
             <button type="submit" class="btn-confirm-pago">Donar Ahora</button>
         </form>
     </div>
@@ -229,56 +202,52 @@ if($id > 0){
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    const inputQty = document.querySelector('.input-quantity');
-    document.querySelector('#increment').onclick = () => inputQty.value = parseInt(inputQty.value) + 1;
-    document.querySelector('#decrement').onclick = () => { if(parseInt(inputQty.value) > 1) inputQty.value = parseInt(inputQty.value) - 1; };
-
     function abrirModal(id) { document.getElementById(id).style.display = 'flex'; document.body.style.overflow = 'hidden'; }
     function cerrarModal(id) { document.getElementById(id).style.display = 'none'; document.body.style.overflow = 'auto'; }
 
     function toggleFacturacion(radio, modalId) {
         const seccion = document.querySelector(`#${modalId} .seccion-datos-tarjeta`);
-        if(radio.value === 'Tarjeta') {
-            seccion.style.display = 'block';
-        } else {
-            seccion.style.display = 'none';
-        }
+        seccion.style.display = (radio.value === 'Tarjeta') ? 'block' : 'none';
     }
 
-    // Máscara Número Tarjeta
+    // --- RESTRICCIONES Y MÁSCARAS ---
+    
+    // Restringir Nombres (Solo letras)
+    document.querySelectorAll('.name-restrict').forEach(input => {
+        input.addEventListener('keypress', (e) => { if (/[0-9]/.test(e.key)) e.preventDefault(); });
+        input.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/[0-9]/g, ''); });
+    });
+
+    // Restringir CVV (Solo 3 números)
+    document.querySelectorAll('.cvv-restrict').forEach(input => {
+        input.addEventListener('keypress', (e) => { if (!/[0-9]/.test(e.key)) e.preventDefault(); });
+        input.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, ''); });
+    });
+
+    // Máscara Tarjeta
     document.querySelectorAll('.card-mask').forEach(input => {
         input.addEventListener('input', (e) => {
-            let v = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/g, '');
-            let parts = [];
-            for (let i = 0; i < v.length; i += 4) { parts.push(v.substring(i, i + 4)); }
-            e.target.value = parts.join(' ');
+            let v = e.target.value.replace(/\D/g, '').substring(0, 16);
+            e.target.value = v.replace(/(\d{4})(?=\d)/g, '$1 ');
         });
     });
 
-    // Máscara Fecha Expiración MM/YY
+    // Máscara Expiración
     document.querySelectorAll('.expiry-mask').forEach(input => {
         input.addEventListener('input', (e) => {
-            let v = e.target.value.replace(/[^0-9]/g, ''); 
-            if (v.length > 2) { v = v.substring(0, 2) + '/' + v.substring(2); }
+            let v = e.target.value.replace(/\D/g, '').substring(0, 4);
+            if (v.length > 2) v = v.substring(0, 2) + '/' + v.substring(2);
             e.target.value = v;
         });
     });
 
-    window.onclick = (e) => { if (e.target.className === 'modal-overlay') { e.target.style.display = 'none'; document.body.style.overflow = 'auto'; } };
+    window.onclick = (e) => { if (e.target.className === 'modal-overlay') cerrarModal(e.target.id); };
 
-    // Corrección del Bucle de Alerta
+    // Manejo de Alerta Success
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('status') === 'adoptado') {
-        Swal.fire({ 
-            title: '¡Gracias!', 
-            text: 'Registro completado con éxito', 
-            icon: 'success', 
-            confirmButtonColor: '#4a6733' 
-        });
-
-        // Limpia la URL sin recargar la página
-        const idArbol = urlParams.get('id');
-        const nuevaUrl = window.location.pathname + '?id=' + idArbol;
-        window.history.replaceState({}, document.title, nuevaUrl);
+        Swal.fire({ title: '¡Gracias!', text: 'Registro completado con éxito', icon: 'success', confirmButtonColor: '#4a6733' });
+        window.history.replaceState({}, document.title, window.location.pathname + '?id=' + urlParams.get('id'));
     }
 </script>
+<?php include("../includes/footer.php"); ?>

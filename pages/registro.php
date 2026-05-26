@@ -11,7 +11,7 @@
         include("../includes/header.php");    
     ?>
     <nav class="breadcrumbs container">
-        <a href="/Arbol/index.php">Inicio</a>
+        <a href="../index.php">Inicio</a>
         <span class="separator">/</span>
         <span class="current">Registro</span>
     </nav>
@@ -43,7 +43,10 @@
 
                 <div class="input-wrapper">
                     <i class="fa-solid fa-lock f-icon"></i>
-                    <input type="password" name="user-password" placeholder="Contraseña" class="f-inputs" novalidate>
+                    <input type="password" name="user-password" id="password" placeholder="Contraseña" class="f-inputs" novalidate>
+                    <div class="campo-correo">
+                        <small id="mensaje-password" class="mensaje-correo"></small>
+                    </div>
                 </div>
 
                 <div class="input-wrapper">
@@ -62,9 +65,10 @@
             
         </div>
     </section>
-    <script src="/Arbol/assets/js/validar-correo.js"></script>
+    <script src="../assets/js/validar-correo.js"></script>
+      <script src="../assets/js/validar-password.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/Arbol/assets/js/registro.js"></script>
+    <script src="../assets/js/registro.js"></script>
     <?php
         include("../includes/footer.php");
     ?>

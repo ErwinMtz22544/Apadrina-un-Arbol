@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
             formData.append("email", inputCorreo.value);
 
             try {
-                const respuesta = await fetch("/Arbol/includes/verificar_correo.php", {
+                const respuesta = await fetch("../includes/verificar_correo.php", {
                     method: "POST",
                     body: formData
                 });

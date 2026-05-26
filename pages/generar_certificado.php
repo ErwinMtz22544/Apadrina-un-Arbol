@@ -3,7 +3,7 @@ require('../libs/fpdf.php');
 include("../includes/db.php");
 session_start();
 
-// 1. Seguridad
+// 1. Seguridad y Datos (Tus variables de DB)
 if (!isset($_SESSION['usuario']) || !isset($_GET['id'])) {
     die("Acceso no autorizado.");
 }
@@ -11,7 +11,6 @@ if (!isset($_SESSION['usuario']) || !isset($_GET['id'])) {
 $id_apadrinamiento = $_GET['id'];
 $email_session = $_SESSION['usuario'];
 
-// 2. Consulta de datos (Buscamos 'nombre' por si usaste la Opción B de la base de datos)
 $query = "SELECT a.*, ar.nombre_comun, ar.nombre_cientifico, u.nombre_usuario, u.nombre 
           FROM apadrinamientos a 
           JOIN arboles ar ON a.id_arbol = ar.id_arbol 
@@ -20,102 +19,109 @@ $query = "SELECT a.*, ar.nombre_comun, ar.nombre_cientifico, u.nombre_usuario, u
 
 $res = mysqli_query($conexion, $query);
 $datos = mysqli_fetch_assoc($res);
-
-if (!$datos) { die("Certificado no encontrado o no te pertenece."); }
-
-// Usamos el nombre real si existe, si no, el usuario de login
 $nombre_tutor = !empty($datos['nombre']) ? $datos['nombre'] : $datos['nombre_usuario'];
 
-// 3. INICIO DEL DIBUJO DEL PDF
-$pdf = new FPDF('L', 'mm', 'Letter'); // Horizontal
+// 2. GENERACIÓN DEL PDF
+$pdf = new FPDF('L', 'mm', 'Letter');
 $pdf->AddPage();
 
-// --- BORDES ESTILO DIPLOMA ---
-// Borde Exterior (Grueso y Verde UTSC)
-$pdf->SetDrawColor(93, 135, 54); 
-$pdf->SetLineWidth(2.5);
-$pdf->Rect(12, 12, 255, 191); 
-
-// Borde Interior 1 (Fino y Negro)
-$pdf->SetDrawColor(0, 0, 0);
-$pdf->SetLineWidth(0.5);
-$pdf->Rect(16, 16, 247, 183);
-
-// Borde Interior 2 (Muy fino, da efecto de relieve)
-$pdf->SetLineWidth(0.1);
-$pdf->Rect(18, 18, 243, 179);
-
-// --- ENCABEZADO ---
-$pdf->Ln(15);
-$pdf->SetFont('Arial', 'B', 14);
-$pdf->SetTextColor(100, 100, 100);
-$pdf->Cell(0, 10, utf8_decode('UNIVERSIDAD TECNOLÓGICA DE SANTA CATARINA'), 0, 1, 'C');
-
-$pdf->Ln(2);
-$pdf->SetFont('Arial', 'B', 40);
-$pdf->SetTextColor(93, 135, 54); // Verde UTSC
-$pdf->Cell(0, 18, utf8_decode('CERTIFICADO DE GUARDIÁN'), 0, 1, 'C');
-
-// Línea separadora sutil
+// --- MARCO ---
 $pdf->SetDrawColor(200, 200, 200);
-$pdf->Line(60, 65, 220, 65);
+$pdf->Rect(10, 10, 259, 196);
 
-// --- CUERPO DEL CERTIFICADO ---
-$pdf->Ln(12);
-$pdf->SetFont('Arial', 'I', 18);
-$pdf->SetTextColor(50, 50, 50);
-$pdf->Cell(0, 10, utf8_decode('Se otorga el presente reconocimiento y título honorífico a:'), 0, 1, 'C');
+// --- FONDO (Imagen de los árboles en la esquina derecha) ---
+// Se coloca al principio para que no tape los textos
+$pdf->Image('../assets/img/arbol-certificado-img.png', 180, 95, 85); 
 
-$pdf->Ln(8);
-$pdf->SetFont('Arial', 'B', 38);
+// --- ENCABEZADO: Título Izquierda, Logo Derecha ---
+$pdf->SetXY(25, 25);
+$pdf->SetFont('Arial', 'B', 32);
 $pdf->SetTextColor(0, 0, 0);
-$pdf->Cell(0, 15, utf8_decode(strtoupper($nombre_tutor)), 0, 1, 'C'); //
+$pdf->Cell(0, 15, utf8_decode('CERTIFICADO'), 0, 1, 'L'); // A la izquierda
 
-$pdf->Ln(8);
-$pdf->SetFont('Arial', '', 16);
-$pdf->SetTextColor(80, 80, 80);
-$pdf->MultiCell(0, 8, utf8_decode("Por su invaluable compromiso con el medio ambiente y la reforestación del campus,\nal apadrinar formalmente un ejemplar de la especie:"), 0, 'C');
+$pdf->SetX(25);
+$pdf->SetFont('Arial', '', 18);
+$pdf->Cell(0, 10, utf8_decode('DE GUARDIÁN'), 0, 1, 'L'); // A la izquierda
 
-$pdf->Ln(6);
+$pdf->SetDrawColor(93, 135, 54);
+$pdf->SetLineWidth(1.5);
+$pdf->Line(25, 52, 55, 52); // Línea decorativa izquierda
+
+$pdf->SetXY(180, 22);
+$pdf->SetFont('Arial', 'B', 16);
+$pdf->SetTextColor(93, 135, 54); 
+$pdf->Cell(80, 10, utf8_decode('Apadrina Un Árbol'), 0, 0, 'R'); // Logo a la derecha
+
+// --- CUERPO: Se otorga (Izquierda) ---
+$pdf->SetY(65);
+$pdf->SetX(25);
+$pdf->SetFont('Arial', '', 18);
+$pdf->SetTextColor(60, 60, 60);
+$pdf->Cell(0, 10, utf8_decode('Se otorga el presente reconocimiento a'), 0, 1, 'C'); // A la izquierda
+
+// --- NOMBRE DEL TUTOR (CENTRADO) ---
+$pdf->Ln(5);
+$pdf->SetFont('Arial', 'B', 42); 
+$pdf->SetTextColor(93, 135, 54);
+$pdf->Cell(0, 20, utf8_decode($nombre_tutor), 0, 1, 'C'); // CENTRADO para impacto visual
+
+// --- DESCRIPCIÓN (IZQUIERDA) ---
+$pdf->SetY(110);
+$pdf->SetX(25);
+$pdf->SetFont('Arial', '', 13);
+$pdf->SetTextColor(50, 50, 50);
+$pdf->MultiCell(0, 7, utf8_decode("Por su valiosa contribución y compromiso con el medio ambiente\nal apadrinar un ejemplar de " . $datos['nombre_comun'] . " (" . $datos['nombre_cientifico'] . ")"), 0, 'L'); // A la izquierda
+
+// --- BAUTIZADO COMO (CENTRADO) ---
+$pdf->Ln(10);
+$pdf->SetY(140);
+$pdf->SetFont('Arial', '', 20);
+$pdf->SetTextColor(40, 40, 40);
+$texto1 = utf8_decode('Bautizado como ');
+$texto2 = utf8_decode($datos['nombre_arbol']);
+$width = $pdf->GetStringWidth($texto1) + $pdf->GetStringWidth($texto2);
+$pdf->SetX(($pdf->GetPageWidth() - $width) / 2); // Cálculo para CENTRAR el bloque mixto
+$pdf->Write(10, $texto1);
 $pdf->SetFont('Arial', 'B', 22);
 $pdf->SetTextColor(93, 135, 54);
-$pdf->Cell(0, 10, utf8_decode($datos['nombre_comun'] . ' (' . $datos['nombre_cientifico'] . ')'), 0, 1, 'C');
+$pdf->Write(10, $texto2);
 
-$pdf->Ln(5);
-$pdf->SetFont('Arial', 'I', 18);
-$pdf->SetTextColor(50, 50, 50);
-$pdf->Cell(0, 10, utf8_decode('Bautizado cariñosamente como: "' . $datos['nombre_arbol'] . '"'), 0, 1, 'C');
+// --- FIRMA IZQUIERDA (Autorización) ---
+$pdf->SetDrawColor(93, 135, 54); 
+$pdf->SetLineWidth(0.5);        
 
-// --- ZONA DE FIRMAS Y FECHA ---
-$pdf->SetY(-55); // Nos anclamos a 55mm del final de la hoja
-
-// Línea Izquierda (Autoridad)
-$pdf->SetDrawColor(0, 0, 0);
-$pdf->SetLineWidth(0.4);
-$pdf->Line(40, 175, 110, 175);
-$pdf->SetFont('Arial', '', 12);
-$pdf->SetTextColor(0, 0, 0);
+// --- FIRMA IZQUIERDA (Autorización) ---
+$pdf->Image('../assets/img/firma.png', 48, 152, 45); 
+$pdf->Line(40, 175, 115, 175); 
 $pdf->SetXY(40, 177);
-$pdf->Cell(70, 5, utf8_decode('Comité de Reforestación UTSC'), 0, 0, 'C');
+$pdf->SetFont('Arial', '', 11);
+$pdf->SetTextColor(0, 0, 0);   // Aseguramos que el texto regrese a negro
+$pdf->Cell(75, 5, utf8_decode('Firma de autorización'), 0, 0, 'C');
 
-// Línea Derecha (Fecha)
-$pdf->Line(170, 175, 240, 175);
-$pdf->SetXY(170, 170); // Ponemos la fecha sobre la línea
-$pdf->SetFont('Arial', 'B', 12);
-$pdf->Cell(70, 5, utf8_decode(date("d / m / Y", strtotime($datos['fecha_apadrinamiento']))), 0, 0, 'C');
-$pdf->SetXY(170, 177); // Texto debajo de la línea
-$pdf->SetFont('Arial', '', 12);
-$pdf->Cell(70, 5, utf8_decode('Fecha de Adopción'), 0, 0, 'C');
+// --- FIRMA DERECHA (Director) ---
+$pdf->Image('../assets/img/firma2.png', 180, 152, 45);
+$pdf->Line(165, 175, 245, 175); // Línea de la derecha (ya heredó el color verde y el grosor)
+$pdf->SetXY(165, 177);
+$pdf->Cell(80, 5, utf8_decode('Director de Apadrinamiento'), 0, 0, 'C');
+// --- PIE DE PÁGINA ---
+$pdf->SetY(185);
+$pdf->SetX(25);
+$pdf->SetFont('Arial', '', 10);
+$pdf->SetTextColor(100, 100, 100);
+$pdf->Cell(0, 5, utf8_decode('Fecha de adopción'), 0, 1, 'L');
+$pdf->SetX(25);
+$pdf->SetFont('Arial', '', 11);
+$pdf->SetTextColor(0, 0, 0);
+$pdf->Cell(0, 5, date("d/m/Y", strtotime($datos['fecha_apadrinamiento'])), 0, 0, 'L');
 
-// --- SELLO DIGITAL (FOOTER) ---
-$pdf->SetY(-25);
-$pdf->SetFont('Arial', 'I', 9);
-$pdf->SetTextColor(150, 150, 150);
-$folio = str_pad($id_apadrinamiento, 5, "0", STR_PAD_LEFT);
 $hash = md5($id_apadrinamiento . $datos['fecha_apadrinamiento'] . $email_session);
-$pdf->Cell(0, 5, utf8_decode("Sello Digital de Autenticidad | Folio: $folio | Hash: $hash"), 0, 1, 'C');
+$pdf->SetXY(160, 185);
+$pdf->SetFont('Arial', '', 10);
+$pdf->SetTextColor(100, 100, 100);
+$pdf->Cell(85, 5, utf8_decode('Sello Digital de Autenticidad'), 0, 1, 'R');
+$pdf->SetXY(160, 190);
+$pdf->SetFont('Arial', '', 8);
+$pdf->Cell(85, 5, $hash, 0, 0, 'R');
 
-// 'I' muestra el PDF en el navegador, 'D' fuerza la descarga. 
-// He puesto 'I' para que puedas ver lo bonito que quedó antes de bajarlo.
-$pdf->Output('I', 'Certificado_' . $datos['nombre_arbol'] . '.pdf'); 
+$pdf->Output('I', 'Certificado_' . $datos['nombre_arbol'] . '.pdf');
 ?>

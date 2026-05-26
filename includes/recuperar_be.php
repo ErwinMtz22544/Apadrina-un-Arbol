@@ -40,7 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
             $mail->Port       = 465;
 
-            $mail->setFrom(SMTP_USER, 'Apadrina un Árbol');
+            //NO BORRAR --para subir a la web cambiar
+          //  $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Cambiar SMTPS por STARTTLS
+		//	$mail->Port       = 587;                          // Cambiar 465 por 587
+
+
+            $mail->setFrom(SMTP_USER, 'Apadrina un Arbol');
             $mail->addAddress($email, $nombre);
 
             $mail->isHTML(true);
@@ -48,6 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Enlace hacia la página donde el usuario pondrá su nueva clave
             $enlace = "http://localhost/Arbol/pages/restablecer.php?token=$token&email=$email";
+
+             // NOBORRAR ----Enlace hacia la página donde el usuario pondrá su nueva clave
+          // $enlace = "http://apadrinaunarbol.free.nf/pages/restablecer.php?token=$token&email=$email";
 
             $mail->Body = "
                 <div style='font-family: sans-serif; border: 1px solid #ddd; padding: 20px;'>

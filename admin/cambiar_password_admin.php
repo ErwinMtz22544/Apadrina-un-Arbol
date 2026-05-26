@@ -14,6 +14,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id = $_POST['id_usuario'];
     $nueva_pass = $_POST['nueva_pass'];
 
+    // --- NUEVA VALIDACIÓN DE SEGURIDAD PARA EL ADMIN ---
+    // Mínimo 8 caracteres, al menos un número y al menos un carácter especial
+if (strlen($nueva_pass) < 8 || !preg_match('/[0-9]/', $nueva_pass) || !preg_match('/[^A-Za-z0-9]/', $nueva_pass)) {
+    echo "
+    <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Contraseña no válida',
+                text: 'La contraseña debe tener al menos 8 caracteres, incluir un número y un símbolo.',
+                confirmButtonColor: '#5D8736',
+                confirmButtonText: 'Entendido',
+                didOpen: () => {
+                    // Aplicamos tus estilos de Poppins directamente aquí
+                    const popup = Swal.getPopup();
+                    const title = Swal.getTitle();
+                    const content = Swal.getHtmlContainer();
+                    if (popup) popup.style.fontFamily = \"'Poppins', sans-serif\";
+                    if (title) { title.style.fontSize = '20px'; title.style.fontWeight = '600'; }
+                    if (content) { content.style.fontSize = '15px'; }
+                }
+            }).then(() => {
+                window.history.back();
+            });
+        });
+    </script>";
+    exit();
+}
+    // ---------------------------------------------------
+
     // 1. Antes de cambiarla, obtenemos el correo y nombre del usuario
     $consulta_usuario = mysqli_query($conexion, "SELECT nombre_usuario, email FROM usuarios WHERE id = '$id'");
     $datos_usuario = mysqli_fetch_assoc($consulta_usuario);
@@ -57,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $mail->send();
         } catch (Exception $e) {
-            
+            // Error de envío, pero la contraseña ya se cambió en BD
         }
 
         header("Location: gestion_usuarios.php?res=pass_ok");

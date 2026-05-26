@@ -2,7 +2,7 @@
 session_start(); 
 include("../../includes/header.php");
 ?>
-
+<link rel="stylesheet" href="/Arbol/assets/css/style.css">
 <main class="support-main" style="background-color: var(--bg-main); padding-top: 140px;">
     <div class="support-card">
         <div style="text-align: center; margin-bottom: 40px;">

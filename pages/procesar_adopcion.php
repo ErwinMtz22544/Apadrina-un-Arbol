@@ -8,14 +8,15 @@ include("../includes/db.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    // 1. MANEJO DE SESIÓN ESTRICTO (Seguridad)
-    // Para el nivel 4, no debemos dejar que "cualquiera" adopte si no está logueado.
-    if (!isset($_SESSION['usuario'])) {
-        header("Location: login.php");
-        exit();
-    }
-    // Obtenemos el ID de la sesión que guardamos en cuenta-usuario.php
-    $id_usuario = isset($_SESSION['id_usuario']) ? $_SESSION['id_usuario'] : 1; 
+   // MANEJO DE SESIÓN 
+if (!isset($_SESSION['id_usuario'])) {
+    // Si no hay ID, algo salió mal en el login, mandamos a loguearse de nuevo al usuario
+    header("Location: login.php?error=sesion_invalida");
+    exit();
+}
+
+//omamos el ID 
+$id_usuario = $_SESSION['id_usuario'];
 
     // 2. CAPTURA DE DATOS INTELIGENTE (Evita errores del modal "Donar")
     // Usamos el operador '??' para asignar valores por defecto si el campo no existe
