@@ -123,7 +123,7 @@
                             </div>
                             <h3 class="news-card-title"><?php echo htmlspecialchars($row['titulo']); ?></h3>
                             
-                            <a href="pages/noticia.php?id=<?php echo $row['id']; ?>" class="news-link">Leer más</a>
+                            <a href="pages/noticia_contenido.php?id=<?php echo $row['id']; ?>" class="news-link">Leer más</a>
                         </div>
                     </article>
             <?php 
@@ -141,7 +141,7 @@
         </div>
 
         <div class="news-actions">
-            <a href="/arbolito-lix/pages/noticias.php" class="btn-view-all">Ver todas las noticias</a>
+            <a href="/Arbol/pages/noticias.php" class="btn-view-all">Ver todas las noticias</a>
         </div>
 
     </div>

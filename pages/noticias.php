@@ -3,13 +3,17 @@ session_start();
 include("../includes/db.php"); 
 include("../includes/header.php"); 
 ?>
-
+    <nav class="breadcrumbs container">
+        <a href="/Arbol/index.php">Inicio</a>
+        <span class="separator">/</span>
+        <span class="current">Noticias Árboleras</span>
+    </nav>
 <main class="news-page-main">
     <div class="container">
         
         <div class="news-header">
             <h1 class="news-page-title">
-                <i class="fa-solid fa-newspaper"></i> Nuestras Noticias Arboleras
+                Nuestras Noticias <span> Arboleras</span>
             </h1>
         </div>
 
@@ -41,7 +45,7 @@ include("../includes/header.php");
                             </div>
                             <h3 class="news-card-title"><?php echo htmlspecialchars($row['titulo']); ?></h3>
                             
-                            <a href="noticia.php?id=<?php echo $row['id']; ?>" class="news-link">Leer más</a>
+                            <a href="noticia_contenido.php?id=<?php echo $row['id']; ?>" class="news-link">Leer más</a>
                         </div>
                     </article>
             <?php
