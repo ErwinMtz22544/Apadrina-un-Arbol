@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const correo = formulario.querySelector('input[name="email"]').value.trim();
             const pass = formulario.querySelector('input[name="user-password"]').value.trim();
             const passConfirm = formulario.querySelector('input[name="reg_confirm"]').value.trim();
+            //privacidad
+            const privacidad = formulario.querySelector('#acepto_privacidad');
 
             // Validar campos vacíos
             if (!nombre || !correo || !pass || !passConfirm) {
@@ -69,6 +71,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     width: '400px',
                     didOpen: stylesMensagge
                 });
+                return;
+            }
+            // VALIDAR SI EL CHECKBOX NO ESTÁ SELECCIONADO (NUEVO)
+            if (!privacidad || !privacidad.checked) {
+                e.preventDefault(); // Evita que se envíe el formulario al backend
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Aviso de Privacidad',
+                    text: 'Debes leer y aceptar la Política de Privacidad para poder continuar.',
+                    confirmButtonColor: '#5D8736',
+                    width: '400px',
+                    didOpen: stylesMensagge
+                });
+                return;
             }
         });
     }

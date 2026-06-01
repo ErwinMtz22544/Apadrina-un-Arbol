@@ -53,7 +53,20 @@
                     <i class="fas fa-check-circle f-icon"></i>
                     <input type="password" name="reg_confirm" placeholder="Confirmar contraseña" class="f-inputs" novalidate>
                 </div>
-
+                <!-- para el aviso de privacidad -->
+                <div class="input-wrapper privacy-wrapper" style="margin-bottom: 5px;">
+                    <input type="checkbox" id="acepto_privacidad" name="acepto_privacidad" style="width: auto; margin-right: 10px;">
+                    <label for="acepto_privacidad" style="font-size: 14px;">
+                        He leído y acepto la 
+                        <a href="footer-soporte/politica-privacidad.php" target="_blank" style="color: #5D8736; font-weight: bold; text-decoration: underline;">
+                            Política de Privacidad
+                        </a>
+                    </label>
+                </div>
+                
+                <div class="campo-correo" style="margin-bottom: 20px;">
+                    <small id="mensaje-privacidad" class="mensaje-correo" style="color: red; display: none;"></small>
+                </div>
                 <button type="submit" class="btn-LR">Registrarme</button>
                 
                 <p class="register-link">¿Ya tienes cuenta? <a href="login.php">Inicia sesión aquí</a></p>
