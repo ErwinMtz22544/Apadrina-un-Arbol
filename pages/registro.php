@@ -68,7 +68,7 @@
                     <small id="mensaje-privacidad" class="mensaje-correo" style="color: red; display: none;"></small>
                 </div>
                 <button type="submit" class="btn-LR">Registrarme</button>
-                
+                <!--  -->
                 <p class="register-link">¿Ya tienes cuenta? <a href="login.php">Inicia sesión aquí</a></p>
             </form>
 
