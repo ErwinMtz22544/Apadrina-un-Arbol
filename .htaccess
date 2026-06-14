@@ -1,0 +1,20 @@
+<IfModule mod_headers.c>
+    # 1. Previene ataques MIME-sniffing (X-Content-Type-Options)
+    Header always set X-Content-Type-Options "nosniff"
+
+    # 2. Fuerza conexiones seguras y evita robo de cookies (Strict-Transport-Security)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # 3. Protege la privacidad del usuario al navegar a otros sitios (Referrer-Policy)
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # 4. Bloquea inyecciones de código XSS (Content-Security-Policy)
+    # Nota: Está configurada para permitir scripts y estilos de tus CDNs (Cloudflare, jsDelivr)
+    Header always set Content-Security-Policy "default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:;"
+    
+    # Previene que la página sea incrustada en iframes falsos (Clickjacking)
+    Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+# 5. Oculta la firma del servidor para evitar la fuga de información de tus tecnologías
+ServerSignature Off
