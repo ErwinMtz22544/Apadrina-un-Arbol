@@ -32,7 +32,6 @@ if (session_status() === PHP_SESSION_NONE) {
                     <li><a href="/Arbol/index.php" class="nav-link">Inicio</a></li>
                     <li><a href="/Arbol/pages/catalogo.php" class="nav-link">Catálogo</a></li> 
                     <li><a href="/Arbol/pages/noticias.php" class="nav-link">Noticias</a></li>
-                    <li>Prueba funcionamiento<li>
                     <li class="dropdown-item">
                         <div class="nav-link">Cuenta <i class="ri-arrow-down-s-line dropdown-arrow"></i></div>
                         <ul class="dropdown-menu">

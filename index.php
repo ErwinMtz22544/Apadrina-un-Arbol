@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=<?php echo time(); ?>">
     <title>Inicio</title>
 </head>
 <body>
@@ -18,35 +18,30 @@
             <h3>Con una pequeña acción hoy, cultivas un futuro más verde para todos. 
                 Tu apoyo ayuda directamente a la restauración de ecosistemas y al equilibrio de nuestro planeta.
             </h3>
-            <a href="pages/catalogo.php" class="btn">Más información</a>
+            <a href="#about" class="btn">Más información</a> <!-- boton modificado -->
         </div>
         <div class="home-img">
             <img src="assets/img/home/arbol-home.png" alt="arbol">
         </div>
     </section>
     <!--que hacemos-->
-    <section class="about container" id="about">
-        <div class="about-img">
-            <img src="assets/img/home/about-img.jpg" alt="arbol">
-        </div>
-        <div class="about-text">
-            <h2>¿Qué hacemos?</h2>
-            <p>
-                Vivimos en un mundo donde la deforestación, la contaminación y el cambio climático afectan directamente nuestra calidad de vida. 
-                Por ello, a través de este proyecto trabajamos para crear conciencia ambiental y ofrecer a las personas la oportunidad de ser 
-                parte activa del cambio.
-                <br><br>
-                Apadrinar un árbol es una forma sencilla y significativa de contribuir al cuidado del medio ambiente. Cada donación que recibimos
-                se transforma en acciones concretas para sembrar vida y construir un futuro más sostenible.
-                <br><br>
-                A través de las donaciones, impulsamos iniciativas enfocadas en la siembra, cuidado y protección de árboles, así como en la mejora
-                de áreas verdes y la concientización ambiental dentro de la comunidad. Nuestro objetivo es asegurar que cada aportación tenga un 
-                impacto real, positivo y duradero en el medio ambiente.
-                            
-            </p>
-            <a href="pages/about.php" class="btn">Más información</a>
-        </div>
-    </section>
+<section class="about container" id="about">
+    <div class="about-img">
+        <!-- Regresamos a tu foto original -->
+        <img src="assets/img/home/about-img.jpg" alt="Manos plantando un árbol">
+    </div>
+    
+    <div class="about-text">
+        <h2>¿Qué hacemos?</h2>
+        <p>Vivimos en un mundo donde la deforestación, la contaminación y el cambio climático afectan directamente nuestra calidad de vida. Por ello, a través de este proyecto trabajamos para crear conciencia ambiental y ofrecer a las personas la oportunidad de ser parte activa del cambio.</p>
+        <br>
+        <p>Apadrinar un árbol es una forma sencilla y significativa de contribuir al cuidado del medio ambiente. Cada donación que recibimos se transforma en acciones concretas para sembrar vida y construir un futuro más sostenible.</p>
+        <br>
+        <p>A través de las donaciones, impulsamos iniciativas enfocadas en la siembra, cuidado y protección de árboles, así como en la mejora de áreas verdes y la concientización ambiental dentro de la comunidad. Nuestro objetivo es asegurar que cada aportación tenga un impacto real, positivo y duradero en el medio ambiente.</p>
+        
+        <a href="pages/about.php" class="btn">Conoce nuestra historia</a>
+    </div>
+</section>
     <!--Cuidados-->
 <section class="services">
     <div class="container">
