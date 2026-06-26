@@ -1,7 +1,8 @@
 <?php
 include 'db.php';
 
-$correo = $_POST['email'];
+
+$correo = mysqli_real_escape_string($conexion, $_POST['email']);
 $dominio = substr(strrchr($correo, "@"), 1);
 $query = mysqli_query($conexion, "SELECT * FROM usuarios WHERE email='$correo'");
 if (!checkdnsrr($dominio, "MX")) {

@@ -2,7 +2,7 @@
 // pages/restablecer.php
 include '../includes/db.php';
 
-
+ 
 $token = isset($_GET['token']) ? $_GET['token'] : '';
 $email = isset($_GET['email']) ? $_GET['email'] : '';
 
@@ -84,50 +84,53 @@ if (!empty($token) && !empty($email)) {
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <script>
-//MENSAJE de alerta
-        function stylesMensagge() {
-            const font = Swal.getPopup();
-            if (font) font.style.fontFamily = "'Poppins', sans-serif";
-        }
+<script>
+    //MENSAJE de alerta
+    function stylesMensagge() {
+        const font = Swal.getPopup();
+        if (font) font.style.fontFamily = "'Poppins', sans-serif";
+    }
 
-        const form = document.getElementById('formRestablecer');
-        if(form) {
-            form.addEventListener('submit', function(e) {
-                const p1 = document.getElementById('nueva_pass').value.trim();
-                const p2 = document.getElementById('confirm_pass').value.trim();
+    const form = document.getElementById('formRestablecer');
+    if(form) {
+        form.addEventListener('submit', function(e) {
+            const p1 = document.getElementById('nueva_pass').value.trim();
+            const p2 = document.getElementById('confirm_pass').value.trim();
 
-                if (!p1 || !p2) {
-                    e.preventDefault();
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Campos vacíos',
-                        text: 'Por favor, completa ambos campos.',
-                        confirmButtonColor: '#5D8736',
-                        didOpen: stylesMensagge
-                    });
-                } else if (p1 !== p2) {
-                    e.preventDefault();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'No coinciden',
-                        text: 'Las contraseñas no son iguales.',
-                        confirmButtonColor: '#d33',
-                        didOpen: stylesMensagge
-                    });
-                } else if (p1.length < 6) {
-                    e.preventDefault();
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Contraseña débil',
-                        text: 'Usa al menos 6 caracteres.',
-                        confirmButtonColor: '#5D8736',
-                        didOpen: stylesMensagge
-                    });
-                }
-            });
-        }
-    </script>
+            // Expresión regular para 8 caracteres, un número y un símbolo
+            const regex = /^(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$/;
+
+            if (!p1 || !p2) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos vacíos',
+                    text: 'Por favor, completa ambos campos.',
+                    confirmButtonColor: '#5D8736',
+                    didOpen: stylesMensagge
+                });
+            } else if (p1 !== p2) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No coinciden',
+                    text: 'Las contraseñas no son iguales.',
+                    confirmButtonColor: '#d33',
+                    didOpen: stylesMensagge
+                });
+            } else if (!regex.test(p1)) { // Reemplaza la validación de length < 6
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Contraseña no válida',
+                    text: 'Debe tener al menos 8 caracteres, incluir un número y un símbolo (-, _, #).',
+                    confirmButtonColor: '#5D8736',
+                    didOpen: stylesMensagge
+                });
+            }
+        });
+    }
+</script>
 
     <?php include("../includes/footer.php"); ?>
 </body>

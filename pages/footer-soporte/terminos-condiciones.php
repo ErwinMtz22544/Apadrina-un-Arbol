@@ -1,4 +1,5 @@
 <?php session_start(); include("../../includes/header.php"); ?>
+<link rel="stylesheet" href="/Arbol/assets/css/style.css">
 <main class="support-main">
     <div class="support-card">
         <h1><i class="ri-file-list-3-line"></i> Términos y Condiciones</h1>

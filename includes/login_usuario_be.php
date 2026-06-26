@@ -23,7 +23,7 @@ if (mysqli_num_rows($validar_login) > 0) {
         if ($fila['verificado'] == 1) {
             // ¡LOGIN EXITOSO!
             $_SESSION['usuario'] = $correo; 
-
+            $_SESSION['id_usuario'] = $fila['id'];
             // Esto nos permitirá saber si es Admin (1), Editor (2) o Usuario (3)
             $_SESSION['id_rol'] = $fila['id_rol'];
             $_SESSION['nombre_usuario'] = $fila['nombre_usuario'];

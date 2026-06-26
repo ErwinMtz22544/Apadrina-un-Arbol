@@ -18,23 +18,34 @@ const stylesMensagge = () => {
     if (icon) icon.style.fontSize = '14px';
 };
 
+
 // 2. Función Cambiar Password 
 const cambiarPassword = (id, nombre) => {
     Swal.fire({
         title: `Nueva contraseña para ${nombre}`,
         input: 'password',
         inputLabel: 'Introduce la nueva contraseña',
-        inputPlaceholder: 'Mínimo 6 caracteres',
+        inputPlaceholder: 'Mínimo 8 caracteres, número y símbolo', // Actualizado el placeholder
         showCancelButton: true,
         confirmButtonColor: '#5D8736',
         confirmButtonText: 'Actualizar',
         didOpen: stylesMensagge 
     }).then((result) => {
         if (result.isConfirmed && result.value) {
-            if (result.value.length < 6) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'La contraseña es muy corta', didOpen: stylesMensagge });
+            const pass = result.value;
+            // Expresión regular: Mínimo 8 caracteres, un número y un carácter especial
+            const regex = /^(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$/;
+
+            if (!regex.test(pass)) {
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: 'Contraseña no válida', 
+                    text: 'La contraseña debe tener al menos 8 caracteres, incluir un número y un símbolo (-, _, #).', 
+                    didOpen: stylesMensagge 
+                });
                 return;
             }
+
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = 'cambiar_password_admin.php';
@@ -43,7 +54,7 @@ const cambiarPassword = (id, nombre) => {
             idInput.type = 'hidden'; idInput.name = 'id_usuario'; idInput.value = id;
 
             const passInput = document.createElement('input');
-            passInput.type = 'hidden'; passInput.name = 'nueva_pass'; passInput.value = result.value;
+            passInput.type = 'hidden'; passInput.name = 'nueva_pass'; passInput.value = pass;
 
             form.appendChild(idInput);
             form.appendChild(passInput);
@@ -52,7 +63,6 @@ const cambiarPassword = (id, nombre) => {
         }
     });
 };
-
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);

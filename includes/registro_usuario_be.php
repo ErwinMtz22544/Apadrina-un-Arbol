@@ -19,12 +19,8 @@ $pass_c = $_POST['reg_confirm'];
 
 // 1. Validar nombre reservado 
 if (strtolower($nombre) == 'admin') {
-    echo '
-        <script>
-            alert("Este nombre de usuario está reservado.");
-            window.location = "../pages/registro.php";
-        </script>
-    ';
+    header("Location: ../pages/registro.php?error=nombre_reservado");
+    exit();
     exit();
 }
 
@@ -33,19 +29,19 @@ if ($pass !== $pass_c) {
     header("Location: ../pages/registro.php?error=pass_no_coinciden");
     exit();
 }
+// Validar fuerza de contraseña
+if (strlen($pass) < 8 || !preg_match('/[0-9]/', $pass) || !preg_match('/[^A-Za-z0-9]/', $pass)) {
+    header("Location: ../pages/registro.php?error=pass_debil");
+    exit();
+}
 
-// --- MEJORA: VERIFICACIÓN DE DUPLICADOS ANTES DE INSERTAR ---
+// --- VERIFICACIÓN DE DUPLICADOS ---
 
 // Verificar que el correo no se repita
 $verificar_correo = mysqli_query($conexion, "SELECT * FROM usuarios WHERE email='$correo'");
 
 if(mysqli_num_rows($verificar_correo) > 0){
-    echo '
-        <script>
-            alert("Este correo ya está registrado, intenta con otro diferente.");
-            window.location = "../pages/registro.php";
-        </script>
-    ';
+    header("Location: ../pages/registro.php?error=usuario_duplicado");
     exit(); 
 }
 
@@ -53,12 +49,7 @@ if(mysqli_num_rows($verificar_correo) > 0){
 $verificar_usuario = mysqli_query($conexion, "SELECT * FROM usuarios WHERE nombre_usuario='$nombre'");
 
 if(mysqli_num_rows($verificar_usuario) > 0){
-    echo '
-        <script>
-            alert("Este nombre de usuario ya está en uso, por favor elige otro.");
-            window.location = "../pages/registro.php";
-        </script>
-    ';
+    header("Location: ../pages/registro.php?error=usuario_duplicado");
     exit();
 }
 
@@ -88,8 +79,8 @@ if ($ejecutar) {
         $mail->SMTPAuth   = true;
         $mail->Username   = SMTP_USER; 
         $mail->Password   = SMTP_PASS; 
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port       = 465;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; //tls 
+        $mail->Port       = 465;  //587
 
         $mail->setFrom(SMTP_USER, 'Apadrina un Árbol');
         $mail->addAddress($correo, $nombre);
@@ -98,6 +89,7 @@ if ($ejecutar) {
         $mail->Subject = 'Verifica tu cuenta - Apadrina un Arbol';
         
         $enlace = "http://localhost/Arbol/includes/verificar_correos_existentes.php?email=$correo&token=$token";
+        //$enlace = "http://apadrinaunarbol.free.nf/includes/verificar_correos_existentes.php?email=$correo&token=$token";
 
         $mail->Body = "
             <div style='font-family: sans-serif; border: 1px solid #ddd; padding: 20px;'>

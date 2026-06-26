@@ -40,7 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
             $mail->Port       = 465;
 
-            $mail->setFrom(SMTP_USER, 'Apadrina un Árbol');
+            //NO BORRAR --para subir a la web cambiar
+          //  $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Cambiar SMTPS por STARTTLS
+		//	$mail->Port       = 587;                          // Cambiar 465 por 587
+
+
+            $mail->setFrom(SMTP_USER, 'Apadrina un Arbol');
             $mail->addAddress($email, $nombre);
 
             $mail->isHTML(true);
@@ -49,11 +54,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Enlace hacia la página donde el usuario pondrá su nueva clave
             $enlace = "http://localhost/Arbol/pages/restablecer.php?token=$token&email=$email";
 
+             // NOBORRAR ----Enlace hacia la página donde el usuario pondrá su nueva clave
+          // $enlace = "http://apadrinaunarbol.free.nf/pages/restablecer.php?token=$token&email=$email";
+
             $mail->Body = "
                 <div style='font-family: sans-serif; border: 1px solid #ddd; padding: 20px;'>
                     <h2>Hola $nombre,</h2>
                     <p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente botón para continuar:</p>
+                    
                     <a href='$enlace' style='background-color: #5D8736; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;'>Restablecer mi contraseña</a>
+                    </p>
+                    <br>
+                    <br>
+                    <br>
+                        <strong>PROTECCIÓN DE DATOS PERSONALES Y CONFIDENCIALIDAD.-</strong> 
+                        El comité organizador de la plataforma digital Apadrina un Árbol, con el objetivo de dar 
+                        cumplimiento a la legislación vigente en materia de protección de datos personales, le informa 
+                        que los datos recabados a través de este sitio web son tratados estrictamente conforme a nuestro 
+                        Aviso de Privacidad Integral, el cual se encuentra a su disposición en nuestra sección correspondiente 
+                        dentro de la plataforma.
+                    </p>
+                    <p>
+                            La información contenida en este mensaje, incluyendo cualquier enlace (link) para la restauración 
+                            de credenciales de acceso o contraseñas, es de carácter estrictamente confidencial, de un solo uso 
+                            y restringida. Está destinada única y exclusivamente para el uso del usuario titular de la cuenta 
+                            a quien se dirige. Por lo tanto, queda prohibido su uso, divulgación, reproducción o distribución 
+                            a cualquier persona ajena al destinatario original.
+                    </p>
+                    <p>
+                        Cualquier uso distinto al expresamente autorizado o que comprometa la seguridad de la cuenta es 
+                        responsabilidad exclusiva del usuario. La plataforma no se hace responsable por accesos no autorizados 
+                        derivados del uso indebido o la transferencia de este enlace a terceros, y se reserva el derecho de 
+                        suspender las cuentas que infrinjan los términos y condiciones de uso seguro.
+                    </p>
                     <p>Si no solicitaste este cambio, puedes ignorar este correo.</p>
                 </div>
             ";
@@ -75,6 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } else {
     header("Location: ../pages/login.php");
 }
-
+#
 mysqli_close($conexion);
 ?>

@@ -6,22 +6,22 @@
             </p>
             <ul class="sci">
     <li>
-        <a href="#" target="_blank">
+        <a href="https://www.facebook.com/UTSCNL/" target="_blank">
             <i class="ri-facebook-circle-fill"></i>
         </a>
     </li>
     <li>
-        <a href="#" target="_blank">
+        <a href="https://www.facebook.com/UTSCNL/" target="_blank">
             <i class="ri-twitter-x-fill"></i>
         </a>
     </li>
     <li>
-        <a href="#" target="_blank">
+        <a href="https://www.instagram.com/utsantacatarina/" target="_blank">
             <i class="ri-instagram-line"></i>
         </a>
     </li>
     <li>
-        <a href="#" target="_blank">
+        <a href="https://www.youtube.com/@UTSantaCatarinaUTSC/featured" target="_blank">
             <i class="ri-youtube-fill"></i>
         </a>
     </li>
