@@ -48,6 +48,74 @@ if (session_status() === PHP_SESSION_NONE) {
                         </ul>
                     </li> 
                     <li><a href="/Arbol/pages/contactanos.php" class="nav-link">Contáctanos</a></li> 
+                    
+                    <li class="nav-weather" style="display: flex; align-items: center; list-style: none;">
+                        <div class="weather-widget" id="navClima" style="
+                            display: flex; 
+                            align-items: center; 
+                            gap: 8px; 
+                            background: #ffffff; 
+                            padding: 6px 14px; 
+                            border-radius: 20px; 
+                            border: 1px solid #d2e7d2;
+                            transition: all 0.3s ease;
+                        ">
+                            <i id="iconoClima" class="ri-sun-fill" style="font-size: 20px; color: #5D8736; display: flex; align-items: center;"></i>
+                            
+                            <div class="weather-info" style="display: flex; align-items: center;">
+                                <span id="tempNav" style="
+                                    font-size: 15px; 
+                                    font-weight: 700; 
+                                    color: #2e4a18; 
+                                    font-family: poppins;
+                                ">--°C</span>
+                            </div>
+                        </div>
+                    </li>
+
+                    <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+                        // Coordenadas por defecto  por si no hay GPS activo
+                        const defaultLat = 25.6761;
+                        const defaultLon = -100.4643;
+
+                        if (navigator.geolocation) {
+                            navigator.geolocation.getCurrentPosition(
+                                (position) => {
+                                    consultarClima(position.coords.latitude, position.coords.longitude);
+                                },
+                                () => {
+                                    consultarClima(defaultLat, defaultLon);
+                                }
+                            );
+                        } else {
+                            consultarClima(defaultLat, defaultLon);
+                        }
+                    });
+
+                    function consultarClima(lat, lon) {
+                        const formData = new FormData();
+                        formData.append('lat', lat);
+                        formData.append('lon', lon);
+
+                        
+                        fetch('clima.php', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.error) {
+                               
+                                document.getElementById('tempNav').innerText = `${data.temperatura}°C`;
+                                document.getElementById('iconoClima').className = data.icono;
+                            }
+                        })
+                        .catch(error => console.error("Error en el Web Service de clima:", error));
+                    }
+                    </script>
+                    
+
                 </ul>
             </div>
         </nav>

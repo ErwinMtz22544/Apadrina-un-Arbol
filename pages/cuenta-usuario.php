@@ -86,14 +86,19 @@ $total_adoptados = mysqli_num_rows($resultado);
                         <p style="margin-bottom: 10px;"><i class="ri-money-dollar-circle-line"></i> Monto: <strong>$<?php echo number_format($fila['monto'], 2); ?> MXN</strong></p>
                         <p><i class="ri-shield-user-line"></i> Tipo: <strong><?php echo $fila['tipo_adopcion']; ?></strong></p>
                     </div>
-
+                    <div style="text-align: center; margin-top: 10px;">
+                           <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=http://PONGAN LA IP AQUI/Arbol/pages/qr.php?id=<?php echo $fila['id_apadrinamiento']; ?>" 
+                                alt="Código QR del Árbol" 
+                            style="border: 1px solid #ddd; padding: 5px; border-radius: 5px; background-color: white;">
+                        </div>
                     <div style="margin-top: auto;">
                         <a href="generar_certificado.php?id=<?php echo $fila['id_apadrinamiento']; ?>" 
                            class="btn-certificado" 
-                           style="display: block; text-align: center; background: #1a3c1a; color: white; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: bold; transition: 0.3s; width: 100%; box-sizing: border-box;">
-                            <i class="ri-file-download-line"></i> Descargar Certificado
+                           style="background-color: #1A3E1C; color: white; padding: 15px 20px; text-decoration: none; border-radius: 8px; display: block; font-weight: bold; text-align: center; margin-top: 10px; font-size: 14px;">
+                            <i class="ri-file-download-line" style="margin-right: 8px;"></i> Descargar Certificado
                         </a>
                     </div>
+
                 </div>
                 
             </div>
