@@ -15,7 +15,7 @@
         include("../includes/header.php")
     ?>
     <nav class="breadcrumbs container">
-        <a href="/Arbol/index.php">Inicio</a>
+        <a href="/index.php">Inicio</a>
         <span class="separator">/</span>
         <span class="current">Contáctanos</span>
     </nav>

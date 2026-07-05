@@ -31,10 +31,10 @@
         <div class="sec links">
             <h2>Soporte</h2>
             <ul class="footer-links">
-            <li><a href="/Arbol/pages/footer-soporte/preguntas-frecuentes.php">Preguntas Frecuentes</a></li>
-            <li><a href="/Arbol/pages/footer-soporte/politica-privacidad.php">Política de Privacidad</a></li>
-            <li><a href="/Arbol/pages/footer-soporte/terminos-condiciones.php">Términos y Condiciones</a></li>
-            <li><a href="/Arbol/pages/footer-soporte/ayuda.php">Ayuda</a></li>
+            <li><a href="/pages/footer-soporte/preguntas-frecuentes.php">Preguntas Frecuentes</a></li>
+            <li><a href="/pages/footer-soporte/politica-privacidad.php">Política de Privacidad</a></li>
+            <li><a href="/pages/footer-soporte/terminos-condiciones.php">Términos y Condiciones</a></li>
+            <li><a href="/pages/footer-soporte/ayuda.php">Ayuda</a></li>
             </ul>
         </div>
 

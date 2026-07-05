@@ -1,4 +1,6 @@
-<?php 
+<?php
+session_start();
+
 // 1. Mostrar errores (útil por si hay problemas de conexión)
 ini_set('display_errors', 1); 
 ini_set('display_startup_errors', 1); 
@@ -90,7 +92,7 @@ $total_adoptados = mysqli_num_rows($resultado);
     </div>
 </main>
 
-<script src="/Arbol/assets/js/menu.js"></script>
+<script src="/assets/js/menu.js"></script>
 </main>
 </body>
 </html>

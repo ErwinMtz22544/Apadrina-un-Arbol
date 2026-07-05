@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $mail->Subject = 'Restablecer Contraseña - Apadrina un Arbol';
 
             // Enlace hacia la página donde el usuario pondrá su nueva clave
-            $enlace = "http://localhost/Arbol/pages/restablecer.php?token=$token&email=$email";
+            $enlace = "http://localhost/pages/restablecer.php?token=$token&email=$email";
 
             $mail->Body = "
                 <div style='font-family: sans-serif; border: 1px solid #ddd; padding: 20px;'>

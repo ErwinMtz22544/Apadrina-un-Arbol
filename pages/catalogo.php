@@ -11,7 +11,7 @@ $resultado = $stmt->get_result();
 ?>
 
 <nav class="breadcrumbs container">
-    <a href="/Arbol/index.php">Inicio</a>
+    <a href="/index.php">Inicio</a>
     <span class="separator">/</span>
     <span class="current">Catálogo de Árboles</span>
 </nav>

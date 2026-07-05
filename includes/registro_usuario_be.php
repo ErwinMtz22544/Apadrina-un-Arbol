@@ -97,7 +97,7 @@ if ($ejecutar) {
         $mail->isHTML(true);
         $mail->Subject = 'Verifica tu cuenta - Apadrina un Arbol';
         
-        $enlace = "http://localhost/Arbol/includes/verificar_correos_existentes.php?email=$correo&token=$token";
+        $enlace = "http://localhost/includes/verificar_correos_existentes.php?email=$correo&token=$token";
 
         $mail->Body = "
             <div style='font-family: sans-serif; border: 1px solid #ddd; padding: 20px;'>

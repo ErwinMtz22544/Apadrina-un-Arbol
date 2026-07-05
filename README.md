@@ -32,7 +32,7 @@ El proyecto sigue una arquitectura modular con una clara separación de responsa
 3. **Base de Datos:** * Abre phpMyAdmin y crea una base de datos llamada `arbolbd`.
    * Importa el archivo `.sql` (si se proporciona) o asegúrate de tener las tablas `usuarios`, `arboles` y `apadrinamientos` configuradas.
 4. **Configuración:** Verifica que las credenciales en `includes/db.php` coincidan con tu servidor local (por defecto: usuario `root`, contraseña en blanco).
-5. **Ejecución:** Abre tu navegador y visita `http://localhost/Arbol/index.php`.
+5. **Ejecución:** Abre tu navegador y visita `http://localhost/index.php`.
 
 ---
 *Desarrollado por el equipo "Apadrina un Arbol" - Proyecto de Desarrollo Web Profesional.*
