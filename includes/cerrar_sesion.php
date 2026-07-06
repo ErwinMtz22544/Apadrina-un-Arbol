@@ -1,4 +1,4 @@
-<?php
+cat<?php
 // Archivo: includes/cerrar_sesion.php
 
 session_start(); // Inicia la sesión para saber cuál destruir
