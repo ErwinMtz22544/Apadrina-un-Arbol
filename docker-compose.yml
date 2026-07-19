@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:5.7
+    container_name: mysql_local
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: arbolbd
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    networks:
+      - arbol-network
+
+  web:
+    build: .
+    container_name: arbol_web_local
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+    networks:
+      - arbol-network
+    depends_on:
+      - db
+
+networks:
+  arbol-network:
+    driver: bridge
