@@ -1,9 +1,9 @@
 <?php 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
-include("../includes/header.php"); 
+// 1. Incluimos primero SOLO la base de datos (lógica, no visual)
 include("../includes/db.php");
 
-// 1. Obtener datos del árbol
+// 2. Ejecutamos la validación del ID y posibles redirecciones
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if($id > 0){
     $stmt = $conexion->prepare("SELECT * FROM arboles WHERE id_arbol = ?");
@@ -11,8 +11,19 @@ if($id > 0){
     $stmt->execute();
     $resultado = $stmt->get_result();
     $arbol = $resultado->fetch_assoc();
-    if(!$arbol) { header("Location: catalogo.php"); exit(); }
-} else { header("Location: catalogo.php"); exit(); }
+    
+    // Si el árbol no existe, redirigimos antes de mostrar nada visual
+    if(!$arbol) { 
+        header("Location: catalogo.php"); 
+        exit(); 
+    }
+} else { 
+    // Si introdujeron letras o basura en el ID, redirigimos inmediatamente
+    header("Location: catalogo.php"); 
+    exit(); 
+}
+// 3. Como pasamos todas las validaciones de seguridad, dibujamos el menú superior
+include("../includes/header.php"); 
 ?>
 
 <style>
@@ -172,7 +183,7 @@ if($id > 0){
                 </div>
                 <div class="row-inputs">
                     <div class="group-input"><label>Expira en</label><input type="text" placeholder="MM/YY" maxlength="5" class="input-field expiry-mask"></div>
-                    <div class="group-input"><label>CVV</label><input type="password" placeholder="CVC" maxlength="3" class="input-field"></div>
+                    <div class="group-input"><label>CVV</label><input type="password" pattern="\d*" maxlength="3" placeholder="CVC" class="input-field" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 </div>
             </div>
 
@@ -218,7 +229,7 @@ if($id > 0){
                 </div>
                 <div class="row-inputs">
                     <div class="group-input"><label>Expira en</label><input type="text" placeholder="MM/YY" maxlength="5" class="input-field expiry-mask"></div>
-                    <div class="group-input"><label>CVV</label><input type="password" placeholder="Número de seguridad" maxlength="3" class="input-field"></div>
+                    <div class="group-input"><label>CVV</label><input type="text" pattern="\d*" maxlength="3" placeholder="Número de seguridad" class="input-field" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                 </div>
             </div>
 
