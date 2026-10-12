@@ -1,26 +1,24 @@
 <?php
-include 'verificar_admin.php'; // SEGURIDAD: Solo el admin entra aquí
+include 'verificar_admin.php';
 include '../includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $id_usuario = $_POST['id_usuario'];
-    $nuevo_rol = $_POST['nuevo_rol'];
+    // Convertimos a número entero asumiendo que tu ID en SQL era numérico
+    $id_usuario = (int)$_POST['id_usuario']; 
+    $nuevo_rol = (int)$_POST['nuevo_rol'];
 
-   
-    $query = "UPDATE usuarios SET id_rol = '$nuevo_rol' WHERE id = '$id_usuario'";
-    $ejecutar = mysqli_query($conexion, $query);
+    $bulk = new MongoDB\Driver\BulkWrite;
+    $bulk->update(
+        ['id' => $id_usuario],
+        ['$set' => ['id_rol' => $nuevo_rol]]
+    );
 
-    if ($ejecutar) {
-        header("Location: gestion_usuarios.php?res=rol_actualizado");
-    } else {
-        echo "Error al actualizar: " . mysqli_error($conexion);
+    try {
+        $conexion->executeBulkWrite('ArbolBD.usuarios', $bulk);
+        header("Location: gestion_usuarios.php?res=ok"); 
+    } catch (Exception $e) {
+        header("Location: gestion_usuarios.php?res=error");
     }
-    
-if ($ejecutar) {
-    header("Location: gestion_usuarios.php?res=ok"); 
-} else {
-    header("Location: gestion_usuarios.php?res=error");
-}
-exit();
+    exit();
 }
 ?>

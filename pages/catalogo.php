@@ -11,7 +11,7 @@ $resultado =$cursor->toArray();
 ?>
 
 <nav class="breadcrumbs container">
-    <a href="/Arbol/index.php">Inicio</a><span class="separator">/</span><span class="current">Catálogo de Árboles</span>
+    <a href="/Apadrina-un-Arbol/index.php">Inicio</a><span class="separator">/</span><span class="current">Catálogo de Árboles</span>
 </nav>
 
 <section class="search">

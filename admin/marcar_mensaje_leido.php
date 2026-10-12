@@ -1,22 +1,23 @@
 <?php
-include 'verificar_admin.php'; // Protección de seguridad
-include '../includes/db.php';     // Conexión a la BD
+include 'verificar_admin.php'; 
+include '../includes/db.php';     
 
 if (isset($_GET['id'])) {
-    // Limpiamos el ID para evitar inyecciones
-    $id = mysqli_real_escape_string($conexion, $_GET['id']);
+    $id = $_GET['id'];
     
-    // Actualizamos el estado a 'leido = 1'
-    $query = "UPDATE mensajes_soporte SET leido = 1 WHERE id = '$id'";
+    $bulk = new MongoDB\Driver\BulkWrite;
+    $bulk->update(
+        ['_id' => new MongoDB\BSON\ObjectId($id)],
+        ['$set' => ['leido' => 1]]
+    );
     
-    if (mysqli_query($conexion, $query)) {
-        // Enviamos un código de éxito (200 OK)
+    try {
+        $conexion->executeBulkWrite('ArbolBD.mensajes_soporte', $bulk);
         http_response_code(200);
         echo "Mensaje marcado como leído";
-    } else {
-        // Enviamos un código de error (500)
+    } catch (Exception $e) {
         http_response_code(500);
-        echo "Error al actualizar: " . mysqli_error($conexion);
+        echo "Error al actualizar: " . $e->getMessage();
     }
 } else {
     http_response_code(400);

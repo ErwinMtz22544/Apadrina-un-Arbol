@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; $mail->Port = 465;
             $mail->setFrom(SMTP_USER, 'Apadrina un Árbol'); $mail->addAddress($email, $nombre);
             $mail->isHTML(true); $mail->Subject = 'Restablecer Contraseña - Apadrina un Arbol';
-            $enlace = "http://localhost/Arbol/pages/restablecer.php?token=$token&email=$email";
+            $enlace = "http://localhost/Apadrina-un-Arbol/pages/restablecer.php?token=$token&email=$email";
             $mail->Body = "<div style='font-family: sans-serif; border: 1px solid #ddd; padding: 20px;'><h2>Hola $nombre,</h2><p>Haz clic en el siguiente botón para continuar:</p><a href='$enlace' style='background-color: #5D8736; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;'>Restablecer mi contraseña</a></div>";
             $mail->send();
             header("Location: ../pages/login.php?res=email_enviado");

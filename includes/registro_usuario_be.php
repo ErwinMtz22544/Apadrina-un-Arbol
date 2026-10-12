@@ -56,7 +56,7 @@ try {
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; $mail->Port = 465;
     $mail->setFrom(SMTP_USER, 'Apadrina un Árbol'); $mail->addAddress($correo, $nombre);
     $mail->isHTML(true); $mail->Subject = 'Verifica tu cuenta - Apadrina un Arbol';
-    $enlace = "http://localhost/Arbol/includes/verificar_correos_existentes.php?email=$correo&token=$token";
+    $enlace = "http://localhost/Apadrina-un-Arbol/includes/verificar_correos_existentes.php?email=$correo&token=$token";
     $mail->Body = "<div style='font-family: sans-serif; border: 1px solid #ddd; padding: 20px;'><h2>¡Hola $nombre!</h2><p>Confirma tu cuenta haciendo clic en el siguiente botón:</p><a href='$enlace' style='background-color: #5D8736; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;'>Verificar mi cuenta</a></div>";
     $mail->send();
     header("Location: ../pages/login.php?status=check_email");

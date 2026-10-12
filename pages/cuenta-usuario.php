@@ -76,5 +76,5 @@ $total_adoptados = count($adopciones);
         <?php endif; ?>
     </div>
 </main>
-<script src="/Arbol/assets/js/menu.js"></script>
+<script src="/Apadrina-un-Arbol/assets/js/menu.js"></script>
 <?php include("../includes/footer.php"); ?>
