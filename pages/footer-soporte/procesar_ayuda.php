@@ -1,28 +1,44 @@
 <?php
-// 1. Incluimos la conexión (subiendo dos niveles para llegar a la raíz)
+// 1. Incluimos la conexión de MongoDB
 include("../../includes/db.php");
 
 // 2. Verificamos que los datos lleguen por el método POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // 3. Limpiamos los datos para evitar Inyección SQL
-    $nombre  = mysqli_real_escape_string($conexion, $_POST['nombre']);
-    $email   = mysqli_real_escape_string($conexion, $_POST['email']);
-    $asunto  = mysqli_real_escape_string($conexion, $_POST['asunto']);
-    $mensaje = mysqli_real_escape_string($conexion, $_POST['mensaje']);
+    // 3. Recibimos los datos directos (MongoDB no necesita escape manual como MySQL)
+    $nombre  = $_POST['nombre'];
+    $email   = $_POST['email'];
+    $asunto  = $_POST['asunto'];
+    $mensaje = $_POST['mensaje'];
 
-    // 4. Preparamos la consulta (Esto es lo que faltaba en el error)
-    $query = "INSERT INTO mensajes_soporte (nombre, email, asunto, mensaje, leido) 
-            VALUES ('$nombre', '$email', '$asunto', '$mensaje', 0)";
+    // 4. Preparamos la herramienta de inserción (BulkWrite)
+    $bulk = new MongoDB\Driver\BulkWrite;
 
-    // 5. Ejecutamos la consulta y enviamos la respuesta
-    if (mysqli_query($conexion, $query)) {
+    // 5. Armamos el documento como si fuera un JSON
+    $documento = [
+        'nombre' => $nombre,
+        'email' => $email,
+        'asunto' => $asunto,
+        'mensaje' => $mensaje,
+        'leido' => 0, // Mantenemos tu lógica original de no leído
+        'fecha' => new MongoDB\BSON\UTCDateTime() // Guarda la fecha y hora exacta
+    ];
+
+    // 6. Agregamos el documento a la cola
+    $bulk->insert($documento);
+
+    // 7. Ejecutamos la inserción con un bloque try-catch para capturar posibles errores
+    try {
+        // IMPORTANTE: Asegúrate de que las mayúsculas coincidan con tu Compass (ArbolBD)
+        $resultado = $conexion->executeBulkWrite('ArbolBD.mensajes_soporte', $bulk);
+        
         // Éxito: Redirigimos de vuelta con un parámetro para el SweetAlert
         header("Location: ayuda.php?status=enviado");
         exit();
-    } else {
+        
+    } catch (MongoDB\Driver\Exception\Exception $e) {
         // Error de base de datos
-        echo "Error técnico: " . mysqli_error($conexion);
+        echo "Error técnico: " . $e->getMessage();
     }
 
 } else {
@@ -30,6 +46,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: ayuda.php");
     exit();
 }
-
-mysqli_close($conexion);
 ?>

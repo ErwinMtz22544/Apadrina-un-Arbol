@@ -4,18 +4,17 @@ header('Content-Type: application/json');
 
 $q = $_GET['q'] ?? '';
 
-// SEGURIDAD: Usamos Prepared Statements con LIKE
-$stmt = $conexion->prepare("SELECT * FROM arboles WHERE nombre_comun LIKE ? OR nombre_cientifico LIKE ?");
-$term = "%$q%";
-$stmt->bind_param("ss", $term, $term);
-$stmt->execute();
-$resultado = $stmt->get_result();
+// Expresión regular para buscar coincidencias ignorando mayúsculas/minúsculas ('i')
+$term = new MongoDB\BSON\Regex($q, 'i');
+$filter = [
+    '$or' => [
+        ['nombre_comun' => $term],
+        ['nombre_cientifico' => $term]
+    ]
+];
 
-$arboles = [];
-while ($fila = $resultado->fetch_assoc()) {
-    $arboles[] = $fila;
-}
+$query = new MongoDB\Driver\Query($filter);
+$cursor = $conexion->executeQuery("ArbolBD.arboles", $query)->toArray();
 
-echo json_encode($arboles);
-$stmt->close();
-$conexion->close();
+echo json_encode($cursor);
+?>

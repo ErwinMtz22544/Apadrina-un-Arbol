@@ -7,27 +7,37 @@ if (!isset($_SESSION['usuario']) || $_SESSION['id_rol'] != 1) {
 
 include '../includes/db.php';
 
-//  Ejecutamos el borrado
-$query_borrar = "DELETE FROM usuarios 
-                WHERE verificado = 0 
-                AND id_rol = 3 
-                AND fecha_registro < NOW() - INTERVAL 24 HOUR";
+// 1. Calculamos la fecha límite (hace 24 horas)
+$fecha_limite = date('Y-m-d H:i:s', strtotime('-24 hours'));
 
-if (mysqli_query($conexion, $query_borrar)) {
-    $borrados = mysqli_affected_rows($conexion);
+// 2. Preparamos el borrado masivo
+$bulk_borrar = new MongoDB\Driver\BulkWrite;
+$bulk_borrar->delete([
+    'verificado' => 0, 
+    'id_rol' => 3, 
+    'fecha_registro' => ['$lt' => $fecha_limite]
+]);
 
-    // 2. SOLO SI SE BORRÓ ALGUIEN, lo anotamos en la bitácora
+try {
+    // 3. Ejecutamos el borrado y obtenemos cuántos se borraron
+    $resultado_borrado = $conexion->executeBulkWrite('ArbolBD.usuarios', $bulk_borrar);
+    $borrados = $resultado_borrado->getDeletedCount();
+
+    // 4. SOLO SI SE BORRÓ ALGUIEN, lo anotamos en el historial
     if ($borrados > 0) {
-        $admin = $_SESSION['usuario'];
-        $query_log = "INSERT INTO historial_limpieza (cantidad_eliminados, admin_que_limpio) 
-                    VALUES ($borrados, '$admin')";
-        mysqli_query($conexion, $query_log);
+        $admin = $_SESSION['usuario_nombre'] ?? 'Admin'; // Cambia 'usuario_nombre' a tu variable de sesión si es diferente
+        
+        $bulk_log = new MongoDB\Driver\BulkWrite;
+        $bulk_log->insert([
+            'cantidad_eliminados' => $borrados,
+            'admin_que_limpio' => $admin,
+            'fecha_limpieza' => new MongoDB\BSON\UTCDateTime()
+        ]);
+        $conexion->executeBulkWrite('ArbolBD.historial_limpieza', $bulk_log);
     }
 
     header("Location: gestion_usuarios.php?limpieza=$borrados");
-    exit();
-} else {
-    echo "Error: " . mysqli_error($conexion);
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
 }
-mysqli_close($conexion);
 ?>
