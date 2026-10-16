@@ -1,7 +1,14 @@
 <?php
 include 'db.php';
 
-$correo = $_POST['email'];
+$correo = isset($_GET['email']) ? trim($_GET['email']) : '';
+
+// Validar que el correo no esté vacío antes de hacer consultas o validaciones DNS
+if (empty($correo) || !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+    echo "invalido"; 
+    exit();
+}
+
 $dominio = substr(strrchr($correo, "@"), 1);
 
 if (!checkdnsrr($dominio, "MX")) {
