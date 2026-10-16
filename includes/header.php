@@ -38,8 +38,8 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <li><a href="/Apadrina-un-Arbol/pages/cuenta-usuario.php" class="dropdown-link"><i class="ri-user-line"></i> Mi Perfil</a></li>
                                 <li><a href="/Apadrina-un-Arbol/includes/cerrar_sesion.php" class="dropdown-link" style="color: #d33;"><i class="ri-logout-box-r-line"></i> Cerrar Sesión</a></li>
                             <?php else: ?>
-                                <li><a href="/Apadrina-un-Arbol/pages/login.php" class="dropdown-link">Iniciar Sesión</a></li>
-                                <li><a href="/Apadrina-un-Arbol/pages/registro.php" class="dropdown-link">Registrarse</a></li>
+                                <li><a href="/Apadrina-un-Arbol/pages/login.php" class="dropdown-link"><i class="ri-login-box-line"></i> Iniciar Sesión</a></li>
+                                <li><a href="/Apadrina-un-Arbol/pages/registro.php" class="dropdown-link"><i class="ri-user-add-line"></i> Registrarse</a></li>
                             <?php endif; ?>
                         </ul>
                     </li> 
