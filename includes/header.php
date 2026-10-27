@@ -28,11 +28,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
             <div class="nav-menu" id="nav-menu">
                 <ul class="nav-list">
-                    <li><a href="/Apadrina-un-Arbol/index.php" class="nav-link">Inicio</a></li>
-                    <li><a href="/Apadrina-un-Arbol/pages/catalogo.php" class="nav-link">Catálogo</a></li> 
-                    
+                    <li><a href="/Apadrina-un-Arbol/index.php" class="nav-link"><i class="ri-home-4-line"></i> Inicio</a></li>
+                    <li><a href="/Apadrina-un-Arbol/pages/catalogo.php" class="nav-link"><i class="ri-plant-line"></i> Catálogo</a></li> 
+
                     <li class="dropdown-item">
-                        <div class="nav-link">Cuenta <i class="ri-arrow-down-s-line dropdown-arrow"></i></div>
+                        <div class="nav-link"><i class="ri-user-smile-line"></i> Cuenta <i class="ri-arrow-down-s-line dropdown-arrow"></i></div>
                         <ul class="dropdown-menu">
                             <?php if(isset($_SESSION['usuario'])): ?>
                                 <li><a href="/Apadrina-un-Arbol/pages/cuenta-usuario.php" class="dropdown-link"><i class="ri-user-line"></i> Mi Perfil</a></li>
@@ -43,7 +43,9 @@ if (session_status() === PHP_SESSION_NONE) {
                             <?php endif; ?>
                         </ul>
                     </li> 
-                    <li><a href="/Apadrina-un-Arbol/pages/contactanos.php" class="nav-link">Contáctanos</a></li> 
+                    <li><a href="/Apadrina-un-Arbol/pages/contactanos.php" class="nav-link"><i class="ri-mail-send-line"></i> Contáctanos</a></li>
+                    <!-- NUEVO ENLACE AL MANUAL DE USUARIO -->
+                    <li><a href="/Apadrina-un-Arbol/pages/manual.php" class="nav-link"><i class="ri-book-read-line"></i> Manual</a></li>                    <li><a href="/Apadrina-un-Arbol/pages/foro.php" class="nav-link"><i class="ri-discuss-line"></i> Foro</a></li>
                 </ul>
             </div>
         </nav>

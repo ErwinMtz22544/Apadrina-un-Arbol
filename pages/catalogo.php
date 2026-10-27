@@ -6,8 +6,9 @@ if (session_status() === PHP_SESSION_NONE) { session_start(); }
 include("../includes/header.php"); 
 include("../includes/db.php"); 
 
-$query = new MongoDB\Driver\Query([]);$cursor = $conexion->executeQuery("ArbolBD.arboles", $query);
-$resultado =$cursor->toArray();
+$query = new MongoDB\Driver\Query([]);
+$cursor = $conexion->executeQuery("ArbolBD.arboles", $query);
+$resultado = $cursor->toArray();
 ?>
 
 <nav class="breadcrumbs container">
@@ -28,7 +29,7 @@ $resultado =$cursor->toArray();
     <div class="catalago-grid" id="catalogoGrid">
         <?php 
         if (count($resultado) > 0):
-            foreach($resultado as$arbol): 
+            foreach($resultado as $arbol): 
         ?>
         <div class="catalago-card">
             <div class="catalago-img">

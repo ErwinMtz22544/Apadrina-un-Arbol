@@ -4,12 +4,13 @@ header('Content-Type: application/json');
 
 $q = $_GET['q'] ?? '';
 
-// Expresión regular para buscar coincidencias ignorando mayúsculas/minúsculas ('i')
 $term = new MongoDB\BSON\Regex($q, 'i');
 $filter = [
     '$or' => [
         ['nombre_comun' => $term],
-        ['nombre_cientifico' => $term]
+        ['nombre_cientifico' => $term],
+        ['epoca' => $term],
+        ['descripcion' => $term]
     ]
 ];
 
