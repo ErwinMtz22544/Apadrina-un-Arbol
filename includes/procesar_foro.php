@@ -1,9 +1,9 @@
 <?php
-session_start();
-// 1. Forzar la zona horaria correcta para Monterrey / Centro de México
-date_default_timezone_set('America/Monterrey'); 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-include 'db.php';
+include("db.php");
 
 if (!isset($_SESSION['usuario']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: ../pages/foro.php");
@@ -12,38 +12,69 @@ if (!isset($_SESSION['usuario']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $email_session = $_SESSION['usuario'];
 $mensaje = trim($_POST['mensaje']);
-$ruta_imagen = null;
+$urlImagenFinal = null;
+
 
 $queryUser = new MongoDB\Driver\Query(['email' => $email_session]);
 $cursorUser = $conexion->executeQuery("ArbolBD.usuarios", $queryUser)->toArray();
-$nombre_usuario = !empty($cursorUser) ? ($cursorUser[0]->nombre ?? $cursorUser[0]->nombre_usuario) : "Usuario Anónimo";
+$nombre_usuario = !empty($cursorUser) ? ($cursorUser[0]->nombre ?? $cursorUser[0]->nombre_usuario) : ($_SESSION['nombre_usuario'] ?? "Usuario Anónimo");
 
-// 2. Procesamiento de imagen más robusto
+// Procesamiento de imagen con Cloudinary
 if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-    $directorio_destino = '../assets/images/'; 
+    $fileTmpPath = $_FILES['foto']['tmp_name'];
     
-    // Si la carpeta no existe, PHP la crea automáticamente con permisos
-    if (!file_exists($directorio_destino)) {
-        mkdir($directorio_destino, 0777, true);
-    }
+    // --- CREDENCIALES (Automáticas para Render) ---
+    $cloudName = getenv('CLOUDINARY_CLOUD_NAME');
+    $apiKey    = getenv('CLOUDINARY_API_KEY');
+    $apiSecret = getenv('CLOUDINARY_API_SECRET');
+
+    /* 
+      =================================================================
+      NOTA PARA LOCAL: Descomenta las 3 líneas de abajo para pruebas rápidas.
+      *** BORRAR O COMENTAR ESTO ANTES DE SUBIR A PRODUCCIÓN/RENDER ***
+      =================================================================
+    */
+    // $cloudName = 'k';
+    // $apiKey    = '6';     
+    // $apiSecret = 'X';  
+    /* =============================================================== */
+
+    $timestamp = time();
+    $stringToSign = "folder=foro_imagenes&timestamp=" . $timestamp . $apiSecret;
+    $signature = sha1($stringToSign);
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "https://api.cloudinary.com/v1_1/{$cloudName}/image/upload");
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
-    $extension = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
-    $nombre_archivo = uniqid('post_') . '.' . $extension;
-    $ruta_final = $directorio_destino . $nombre_archivo;
+    $postData = [
+        'file' => new CURLFile($fileTmpPath),
+        'api_key' => $apiKey,
+        'timestamp' => $timestamp,
+        'signature' => $signature,
+        'folder' => 'foro_imagenes'
+    ];
     
-    // Validar que realmente se mueva el archivo antes de guardar la ruta
-    if (move_uploaded_file($_FILES['foto']['tmp_name'], $ruta_final)) {
-        $ruta_imagen = '/Apadrina-un-Arbol/assets/images/' . $nombre_archivo;
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    $resultData = json_decode($response, true);
+
+    if (isset($resultData['secure_url'])) {
+        $urlImagenFinal = $resultData['secure_url'];
     }
 }
+
 
 $documento = [
     'email_usuario' => $email_session,
     'nombre_usuario' => $nombre_usuario,
     'mensaje' => $mensaje,
-    'imagen' => $ruta_imagen,
+    'imagen' => $urlImagenFinal, // Guardará la URL de Cloudinary 
     'fecha' => date('Y-m-d H:i:s'),
-    'comentarios' => [] 
+    'comentarios' => []
 ];
 
 try {
@@ -52,6 +83,8 @@ try {
     $conexion->executeBulkWrite('ArbolBD.foro', $bulk);
     
     header("Location: ../pages/foro.php?publicado=ok");
+    exit();
+
 } catch (MongoDB\Driver\Exception\Exception $e) {
     echo "Error al guardar el post: " . $e->getMessage();
 }
