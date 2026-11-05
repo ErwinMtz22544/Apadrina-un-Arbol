@@ -1,3 +1,6 @@
+<?php
+ob_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +15,6 @@
 </head>
 <body class="contact-body">
     <?php
-        ob_start();
 
         include("../includes/header.php")
     ?>

@@ -1,5 +1,9 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
+    // Limpia cualquier salida previa en el búfer para evitar errores de cabecera
+    if (function_exists('ob_get_length') && ob_get_length()) {
+        @ob_clean();
+    }
     session_start();
 }
 ?>

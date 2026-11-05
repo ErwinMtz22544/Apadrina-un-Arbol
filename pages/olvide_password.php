@@ -1,3 +1,6 @@
+<?php
+ob_start();
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,7 +10,6 @@
 </head>
 <body class="contact-body">
     <?php 
-    ob_start();
     
     include("../includes/header.php"); ?>
         <nav class="breadcrumbs container">

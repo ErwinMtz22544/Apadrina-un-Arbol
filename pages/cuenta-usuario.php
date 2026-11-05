@@ -3,8 +3,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1); 
 error_reporting(E_ALL);
 
-ob_start();
-include("../includes/db.php");ob_start();
+
+include("../includes/db.php");
 include("../includes/header.php"); 
 
 if (!isset($_SESSION['usuario'])) {

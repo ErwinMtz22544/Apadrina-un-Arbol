@@ -1,3 +1,6 @@
+<?php
+ob_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,8 +11,6 @@
 </head>
 <body>
     <?php 
-        ob_start();
-
         include("../includes/header.php");    
     ?>
     <nav class="breadcrumbs container">

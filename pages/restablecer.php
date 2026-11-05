@@ -1,4 +1,7 @@
 <?php
+
+ob_start();
+
 include '../includes/db.php';
 
 $token = isset($_GET['token']) ? $_GET['token'] : '';
@@ -25,7 +28,6 @@ if (!empty($token) && !empty($email)) {
 <body class="contact-body">
 
     <?php 
-    ob_start();
     
     include("../includes/header.php"); ?>
 
