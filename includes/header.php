@@ -17,7 +17,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <header class="header">
         <nav class="nav container">
             <div class="nav-data">
-                <a href="/Apadrina-un-Arbol/index.php" class="nav-logo">
+                <a href="/index.php" class="nav-logo">
                     <i class="ri-tree-fill"></i> Apadrina un Árbol
                 </a>
                 <div class="nav-toggle" id="nav-toggle">
@@ -28,24 +28,24 @@ if (session_status() === PHP_SESSION_NONE) {
 
             <div class="nav-menu" id="nav-menu">
                 <ul class="nav-list">
-                    <li><a href="/Apadrina-un-Arbol/index.php" class="nav-link"><i class="ri-home-4-line"></i> Inicio</a></li>
+                    <li><a href="/index.php" class="nav-link"><i class="ri-home-4-line"></i> Inicio</a></li>
                     <li><a href="/Apadrina-un-Arbol/pages/catalogo.php" class="nav-link"><i class="ri-plant-line"></i> Catálogo</a></li> 
 
                     <li class="dropdown-item">
                         <div class="nav-link"><i class="ri-user-smile-line"></i> Cuenta <i class="ri-arrow-down-s-line dropdown-arrow"></i></div>
                         <ul class="dropdown-menu">
                             <?php if(isset($_SESSION['usuario'])): ?>
-                                <li><a href="/Apadrina-un-Arbol/pages/cuenta-usuario.php" class="dropdown-link"><i class="ri-user-line"></i> Mi Perfil</a></li>
+                                <li><a href="/pages/cuenta-usuario.php" class="dropdown-link"><i class="ri-user-line"></i> Mi Perfil</a></li>
                                 <li><a href="/Apadrina-un-Arbol/includes/cerrar_sesion.php" class="dropdown-link" style="color: #d33;"><i class="ri-logout-box-r-line"></i> Cerrar Sesión</a></li>
                             <?php else: ?>
-                                <li><a href="/Apadrina-un-Arbol/pages/login.php" class="dropdown-link"><i class="ri-login-box-line"></i> Iniciar Sesión</a></li>
-                                <li><a href="/Apadrina-un-Arbol/pages/registro.php" class="dropdown-link"><i class="ri-user-add-line"></i> Registrarse</a></li>
+                                <li><a href="/pages/login.php" class="dropdown-link"><i class="ri-login-box-line"></i> Iniciar Sesión</a></li>
+                                <li><a href="/pages/registro.php" class="dropdown-link"><i class="ri-user-add-line"></i> Registrarse</a></li>
                             <?php endif; ?>
                         </ul>
                     </li> 
-                    <li><a href="/Apadrina-un-Arbol/pages/contactanos.php" class="nav-link"><i class="ri-mail-send-line"></i> Contáctanos</a></li>
+                    <li><a href="/pages/contactanos.php" class="nav-link"><i class="ri-mail-send-line"></i> Contáctanos</a></li>
                     <!-- NUEVO ENLACE AL MANUAL DE USUARIO -->
-                    <li><a href="/Apadrina-un-Arbol/pages/manual.php" class="nav-link"><i class="ri-book-read-line"></i> Manual</a></li>                    <li><a href="/Apadrina-un-Arbol/pages/foro.php" class="nav-link"><i class="ri-discuss-line"></i> Foro</a></li>
+                    <li><a href="/pages/manual.php" class="nav-link"><i class="ri-book-read-line"></i> Manual</a></li>                    <li><a href="/Apadrina-un-Arbol/pages/foro.php" class="nav-link"><i class="ri-discuss-line"></i> Foro</a></li>
                 </ul>
             </div>
         </nav>
