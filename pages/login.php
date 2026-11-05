@@ -1,5 +1,5 @@
 <?php
-ob_start();
+require_once __DIR__ . '/includes/session.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -1,7 +1,5 @@
 <?php
-
-ob_start();
-
+require_once __DIR__ . '/includes/session.php';
 include '../includes/db.php';
 
 $token = isset($_GET['token']) ? $_GET['token'] : '';
