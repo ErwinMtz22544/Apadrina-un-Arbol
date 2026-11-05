@@ -9,7 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link rel="stylesheet" href="/Apadrina-un-Arbol/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Apadrina un Árbol | UTSC</title>
 </head>
@@ -29,14 +29,14 @@ if (session_status() === PHP_SESSION_NONE) {
             <div class="nav-menu" id="nav-menu">
                 <ul class="nav-list">
                     <li><a href="/index.php" class="nav-link"><i class="ri-home-4-line"></i> Inicio</a></li>
-                    <li><a href="/Apadrina-un-Arbol/pages/catalogo.php" class="nav-link"><i class="ri-plant-line"></i> Catálogo</a></li> 
+                    <li><a href="/pages/catalogo.php" class="nav-link"><i class="ri-plant-line"></i> Catálogo</a></li> 
 
                     <li class="dropdown-item">
                         <div class="nav-link"><i class="ri-user-smile-line"></i> Cuenta <i class="ri-arrow-down-s-line dropdown-arrow"></i></div>
                         <ul class="dropdown-menu">
                             <?php if(isset($_SESSION['usuario'])): ?>
                                 <li><a href="/pages/cuenta-usuario.php" class="dropdown-link"><i class="ri-user-line"></i> Mi Perfil</a></li>
-                                <li><a href="/Apadrina-un-Arbol/includes/cerrar_sesion.php" class="dropdown-link" style="color: #d33;"><i class="ri-logout-box-r-line"></i> Cerrar Sesión</a></li>
+                                <li><a href="/includes/cerrar_sesion.php" class="dropdown-link" style="color: #d33;"><i class="ri-logout-box-r-line"></i> Cerrar Sesión</a></li>
                             <?php else: ?>
                                 <li><a href="/pages/login.php" class="dropdown-link"><i class="ri-login-box-line"></i> Iniciar Sesión</a></li>
                                 <li><a href="/pages/registro.php" class="dropdown-link"><i class="ri-user-add-line"></i> Registrarse</a></li>
@@ -45,7 +45,7 @@ if (session_status() === PHP_SESSION_NONE) {
                     </li> 
                     <li><a href="/pages/contactanos.php" class="nav-link"><i class="ri-mail-send-line"></i> Contáctanos</a></li>
                     <!-- NUEVO ENLACE AL MANUAL DE USUARIO -->
-                    <li><a href="/pages/manual.php" class="nav-link"><i class="ri-book-read-line"></i> Manual</a></li>                    <li><a href="/Apadrina-un-Arbol/pages/foro.php" class="nav-link"><i class="ri-discuss-line"></i> Foro</a></li>
+                    <li><a href="/pages/manual.php" class="nav-link"><i class="ri-book-read-line"></i> Manual</a></li>                    <li><a href="/pages/foro.php" class="nav-link"><i class="ri-discuss-line"></i> Foro</a></li>
                 </ul>
             </div>
         </nav>

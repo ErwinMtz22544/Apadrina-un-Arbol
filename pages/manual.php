@@ -72,7 +72,7 @@ include("../includes/header.php");
         <h3>¿Prefieres tener la guía en físico o PDF?</h3>
         <p style="color: #666; font-size: 0.95rem; margin-bottom: 15px;">Descarga el manual completo de adopción y cuidados en formato digital para consultarlo cuando quieras.</p>
         <!-- Enlace actualizado para forzar la descarga del PDF -->
-        <a href="/Apadrina-un-Arbol/assets/Manual_Usuario.pdf" download="Manual_Apadrina_un_Arbol.pdf" class="btn-download">
+        <a href="/assets/Manual_Usuario.pdf" download="Manual_Apadrina_un_Arbol.pdf" class="btn-download">
             <i class="ri-file-download-line"></i> Descargar Manual en PDF
         </a>
     </div>

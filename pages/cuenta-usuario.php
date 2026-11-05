@@ -154,5 +154,5 @@ if ($total_adoptados >= 1 && $total_adoptados <= 2) {
         <?php endif; ?>
     </div>
 </main>
-<script src="/Apadrina-un-Arbol/assets/js/menu.js"></script>
+<script src="/assets/js/menu.js"></script>
 <?php include("../includes/footer.php"); ?>
