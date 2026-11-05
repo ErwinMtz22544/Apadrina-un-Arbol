@@ -12,7 +12,8 @@
 </head>
 <body class="contact-body">
     <?php
-        include("../includes/header.php")
+    ob_start();
+    include("../includes/header.php")
     ?>
     <nav class="breadcrumbs container">
         <a href="/index.php">Inicio</a>

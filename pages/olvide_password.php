@@ -6,7 +6,10 @@
     <title>Recuperar Contraseña</title>
 </head>
 <body class="contact-body">
-    <?php include("../includes/header.php"); ?>
+    <?php 
+    ob_start();
+    
+    include("../includes/header.php"); ?>
         <nav class="breadcrumbs container">
         <a href="/index.php">Inicio</a>
         <span class="separator">/</span>

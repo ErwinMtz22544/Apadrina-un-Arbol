@@ -24,7 +24,10 @@ if (!empty($token) && !empty($email)) {
 </head>
 <body class="contact-body">
 
-    <?php include("../includes/header.php"); ?>
+    <?php 
+    ob_start();
+    
+    include("../includes/header.php"); ?>
 
     <section class="container">
         <div class="contact-container login-container">

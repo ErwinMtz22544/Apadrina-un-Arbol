@@ -9,6 +9,7 @@
 </head>
 <body>
     <?php
+    ob_start();
     include("../includes/header.php");
     ?>
     <nav class="breadcrumbs container">
