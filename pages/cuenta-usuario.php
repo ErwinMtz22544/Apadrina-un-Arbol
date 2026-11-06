@@ -3,13 +3,15 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1); 
 error_reporting(E_ALL);
 
-
+require_once __DIR__ . '/../includes/session.php';
 include("../includes/db.php");
-include("../includes/header.php"); 
+
 
 if (!isset($_SESSION['usuario'])) {
     header("Location: login.php"); exit();
 }
+include("../includes/header.php");
+
 
 $email_session = $_SESSION['usuario']; 
 
