@@ -4,14 +4,14 @@ ob_start();
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Función para enviar respuestas JSON limpias
+// Función para responder únicamente JSON
 function responder($datos, $codigo = 200) {
+
     if (ob_get_level() > 0) {
         ob_clean();
     }
 
     http_response_code($codigo);
-    header('Content-Type: application/json; charset=utf-8');
 
     echo json_encode($datos, JSON_UNESCAPED_UNICODE);
     exit;
@@ -24,8 +24,9 @@ try {
     $accion = $_GET['accion'] ?? '';
     $datos = json_decode(file_get_contents("php://input"), true) ?? [];
 
+    // ==========================================
     // 1. BUSCAR USUARIOS
-    
+    // ==========================================
 
     if ($accion === 'buscar') {
 
@@ -83,8 +84,9 @@ try {
         ]);
     }
 
+    // ==========================================
     // 2. AGREGAR AMIGO
-  
+    // ==========================================
 
     if ($accion === 'agregar') {
 
