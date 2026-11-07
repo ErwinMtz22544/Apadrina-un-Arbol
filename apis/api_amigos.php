@@ -1,31 +1,42 @@
 
 <?php
+ob_start();
+
 header('Content-Type: application/json; charset=utf-8');
+
+// Función para enviar respuestas JSON limpias
+function responder($datos, $codigo = 200) {
+    if (ob_get_level() > 0) {
+        ob_clean();
+    }
+
+    http_response_code($codigo);
+    header('Content-Type: application/json; charset=utf-8');
+
+    echo json_encode($datos, JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 include("../includes/db.php");
 
 try {
 
-    // Obtenemos la acción solicitada
     $accion = $_GET['accion'] ?? '';
-
-    // Leemos los datos enviados desde Flutter
     $datos = json_decode(file_get_contents("php://input"), true) ?? [];
 
-  
     // 1. BUSCAR USUARIOS
-  
+    
+
     if ($accion === 'buscar') {
 
         $busqueda = trim($_GET['q'] ?? '');
         $emailUsuario = strtolower(trim($_GET['email_usuario'] ?? ''));
 
         if (strlen($busqueda) < 2) {
-            echo json_encode([
+            responder([
                 'success' => true,
                 'usuarios' => []
             ]);
-            exit;
         }
 
         $regex = new MongoDB\BSON\Regex(
@@ -49,7 +60,11 @@ try {
         ];
 
         $query = new MongoDB\Driver\Query($filtro, $opciones);
-        $cursor = $conexion->executeQuery("ArbolBD.usuarios", $query);
+
+        $cursor = $conexion->executeQuery(
+            "ArbolBD.usuarios",
+            $query
+        );
 
         $usuarios = [];
 
@@ -62,39 +77,35 @@ try {
             ];
         }
 
-        echo json_encode([
+        responder([
             'success' => true,
             'usuarios' => $usuarios
         ]);
-        exit;
     }
 
-    // ------------------------------------------
     // 2. AGREGAR AMIGO
-    // ------------------------------------------
+  
+
     if ($accion === 'agregar') {
 
         $emailUsuario = strtolower(trim($datos['email_usuario'] ?? ''));
         $emailAmigo = strtolower(trim($datos['email_amigo'] ?? ''));
 
         if (empty($emailUsuario) || empty($emailAmigo)) {
-            http_response_code(400);
-            echo json_encode([
+            responder([
                 'success' => false,
                 'mensaje' => 'Faltan datos del usuario.'
-            ]);
-            exit;
+            ], 400);
         }
 
         if ($emailUsuario === $emailAmigo) {
-            echo json_encode([
+            responder([
                 'success' => false,
                 'mensaje' => 'No puedes agregarte a ti mismo.'
             ]);
-            exit;
         }
 
-        // Comprobamos que ambos usuarios existan
+        // Comprobar que ambos usuarios existan
         $queryUsuarios = new MongoDB\Driver\Query([
             'email' => ['$in' => [$emailUsuario, $emailAmigo]]
         ]);
@@ -105,14 +116,13 @@ try {
         );
 
         if (count(iterator_to_array($usuariosEncontrados)) !== 2) {
-            echo json_encode([
+            responder([
                 'success' => false,
                 'mensaje' => 'Uno de los usuarios no existe.'
             ]);
-            exit;
         }
 
-        // Comprobamos si ya existe la amistad
+        // Comprobar si ya existe la amistad
         $queryExistente = new MongoDB\Driver\Query([
             'email_usuario' => $emailUsuario,
             'email_amigo' => $emailAmigo
@@ -124,14 +134,13 @@ try {
         );
 
         if (count(iterator_to_array($existente)) > 0) {
-            echo json_encode([
+            responder([
                 'success' => false,
                 'mensaje' => 'Este usuario ya está en tus amigos.'
             ]);
-            exit;
         }
 
-        // Guardamos la relación
+        // Guardar la relación
         $bulk = new MongoDB\Driver\BulkWrite();
 
         $bulk->insert([
@@ -140,32 +149,33 @@ try {
             'fecha' => date('Y-m-d H:i:s')
         ]);
 
-        $conexion->executeBulkWrite("ArbolBD.amigos", $bulk);
+        $conexion->executeBulkWrite(
+            "ArbolBD.amigos",
+            $bulk
+        );
 
-        echo json_encode([
+        responder([
             'success' => true,
             'mensaje' => 'Amigo agregado correctamente.'
         ]);
-        exit;
     }
 
-    // ------------------------------------------
+    // ==========================================
     // 3. LISTAR AMIGOS
-    // ------------------------------------------
+    // ==========================================
+
     if ($accion === 'listar') {
 
         $emailUsuario = strtolower(trim($_GET['email_usuario'] ?? ''));
 
         if (empty($emailUsuario)) {
-            http_response_code(400);
-            echo json_encode([
+            responder([
                 'success' => false,
                 'mensaje' => 'Falta el correo del usuario.'
-            ]);
-            exit;
+            ], 400);
         }
 
-        // Buscamos las relaciones del usuario
+        // Buscar relaciones del usuario
         $queryAmigos = new MongoDB\Driver\Query([
             'email_usuario' => $emailUsuario
         ]);
@@ -182,14 +192,13 @@ try {
         }
 
         if (empty($correosAmigos)) {
-            echo json_encode([
+            responder([
                 'success' => true,
                 'amigos' => []
             ]);
-            exit;
         }
 
-        // Obtenemos los perfiles de los amigos
+        // Obtener perfiles de los amigos
         $queryUsuarios = new MongoDB\Driver\Query(
             [
                 'email' => ['$in' => $correosAmigos]
@@ -217,30 +226,27 @@ try {
             ];
         }
 
-        echo json_encode([
+        responder([
             'success' => true,
             'amigos' => $amigos
         ]);
-        exit;
     }
 
-    // Acción no reconocida
-    http_response_code(400);
+    // ==========================================
+    // ACCIÓN NO RECONOCIDA
+    // ==========================================
 
-    echo json_encode([
+    responder([
         'success' => false,
         'mensaje' => 'Acción no válida.'
-    ]);
+    ], 400);
 
 } catch (Throwable $e) {
 
-    http_response_code(500);
+    error_log("Error en api_amigos.php: " . $e->getMessage());
 
-    echo json_encode([
+    responder([
         'success' => false,
         'mensaje' => 'Ocurrió un error en el servidor.'
-    ]);
-
-    error_log("Error en api_amigos.php: " . $e->getMessage());
+    ], 500);
 }
-?>
