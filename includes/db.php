@@ -1,21 +1,16 @@
 <?php
-<<<<<<< Updated upstream
-// Archivo: config/db.php
-$conexion = mysqli_connect("localhost", "root", "", "arbolbd");
-=======
-try {
-    // Intenta realizar la conexión normal
-    $conexion = mysqli_connect('db', 'root', '123456', 'arbolbd');
-    
-    // Obliga a la conexión a usar UTF-8
-    mysqli_set_charset($conexion, "utf8mb4");
->>>>>>> Stashed changes
+// URI de conexión a tu MongoDB Atlas
+$uri = "mongodb+srv://erwinmtz22544_db_user:vCqxwDKe5F6Xmrb0@clusterarbol.kx2umeq.mongodb.net/arbolbd?retryWrites=true&w=majority&appName=ClusterArbol";
 
-} catch (mysqli_sql_exception $e) {
-    // Si la base de datos se cae, captura el error y muestra este mensaje seguro
+try {
+    // Se inicializa el gestor de conexión nativo de MongoDB
+    $conexion = new MongoDB\Driver\Manager($uri);
+    
+} catch (MongoDB\Driver\Exception\Exception $e) {
+    // Si la base de datos se cae, captura el error
     die("<div style='text-align: center; margin-top: 100px; font-family: Arial, sans-serif;'>
             <h2 style='color: #4a6733;'>Sistema temporalmente fuera de servicio</h2>
-            <p>Nuestros servidores están plantando nuevos árboles. Por favor, vuelve a intentarlo en unos minutos.</p>
+            <p>Nuestros servidores están plantando nuevos árboles. Error: " . $e->getMessage() . "</p>
         </div>");
 }
 ?>

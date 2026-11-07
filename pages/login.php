@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../includes/session.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,10 +15,11 @@
 </head>
 <body class="contact-body">
     <?php
+
         include("../includes/header.php")
     ?>
     <nav class="breadcrumbs container">
-        <a href="/Arbol/index.php">Inicio</a>
+        <a href="/index.php">Inicio</a>
         <span class="separator">/</span>
         <span class="current">Iniciar Sesión</span>
     </nav>
@@ -80,7 +84,7 @@
 </section>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script src="/Arbol/assets/js/login.js"></script>
+    <script src="/assets/js/login.js"></script>
     <?php
         include("../includes/footer.php");
     ?>

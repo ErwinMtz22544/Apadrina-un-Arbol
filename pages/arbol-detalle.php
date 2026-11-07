@@ -1,131 +1,158 @@
 <?php 
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
-// 1. Incluimos primero SOLO la base de datos (lógica, no visual)
 include("../includes/db.php");
 
-// 2. Ejecutamos la validación del ID y posibles redirecciones
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if($id > 0){
-    $stmt = $conexion->prepare("SELECT * FROM arboles WHERE id_arbol = ?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
-    $arbol = $resultado->fetch_assoc();
-    
-    // Si el árbol no existe, redirigimos antes de mostrar nada visual
-    if(!$arbol) { 
-        header("Location: catalogo.php"); 
-        exit(); 
-    }
+    $filter = ['id_arbol' => $id];
+    $query = new MongoDB\Driver\Query($filter);
+    $cursor = $conexion->executeQuery("ArbolBD.arboles", $query)->toArray();
+    if(empty($cursor)) { header("Location: catalogo.php"); exit(); }
+    $arbol = $cursor[0];
 } else { 
-    // Si introdujeron letras o basura en el ID, redirigimos inmediatamente
-    header("Location: catalogo.php"); 
-    exit(); 
+    header("Location: catalogo.php"); exit(); 
 }
-// 3. Como pasamos todas las validaciones de seguridad, dibujamos el menú superior
+
+// Valores botánicos
+$altura     = $arbol->altura ?? '5m - 8m';
+$epoca      = $arbol->epoca ?? 'Primavera';
+$riego      = $arbol->riego ?? 'Moderado (1-2 veces/sem)';
+$sol        = $arbol->sol ?? 'Sol directo';
+$suelo      = $arbol->tipo_suelo ?? 'Franco y bien drenado';
+$co2        = $arbol->co2_anual ?? '20 - 25 kg CO₂ / año';
+$cuidados   = $arbol->cuidados ?? 'Riego profundo durante los meses más cálidos en Santa Catarina y poda formativa anual para fortalecer su copa.';
+
 include("../includes/header.php"); 
 ?>
 
 <style>
     :root { --verde-fuerte: #4a6733; --verde-claro: #5D8736; --gris-borde: #ddd; }
-    
-    .container-section-arbol { display: flex; gap: 40px; margin-top: 140px; align-items: flex-start; }
-    .column-left { flex: 1.2; }
-    .column-right { flex: 1; }
+    .container-section-arbol { display: flex; gap: 45px; margin-top: 140px; margin-bottom: 80px; align-items: flex-start; font-family: 'Poppins', sans-serif; }
+    .column-left { flex: 1.15; } .column-right { flex: 1; }
     .main-img { width: 100%; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    details { border-bottom: 1px solid #eee; padding: 18px 0; cursor: pointer; }
+    summary { font-weight: bold; list-style: none; display: flex; justify-content: space-between; align-items: center; color: #222; }
+    summary::-webkit-details-marker { display: none; }
+    .btn-donar-verde { background: var(--verde-fuerte); color: white; border: none; padding: 10px 25px; border-radius: 8px; margin-top: 15px; cursor: pointer; font-weight: bold; font-family: 'Poppins', sans-serif; }
+    
+    /* Estilos nativos para la Ficha Botánica (Derecha) */
+    .ficha-botanica-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px; }
+    .ficha-item { border: 1px solid var(--gris-borde); border-radius: 12px; padding: 12px 14px; background: white; display: flex; align-items: center; gap: 12px; cursor: default; }
+    .ficha-item i { font-size: 22px; color: var(--verde-fuerte); background: #f0fdf4; padding: 8px; border-radius: 10px; line-height: 1; }
+    .ficha-item-text { display: flex; flex-direction: column; }
+    .ficha-label { font-size: 11px; font-weight: 600; color: #777; text-transform: uppercase; letter-spacing: 0.4px; }
+    .ficha-value { font-size: 13.5px; font-weight: 600; color: #333; margin-top: 2px; }
 
-    /* Acordeones */
-    details { border-bottom: 1px solid #eee; padding: 20px 0; cursor: pointer; }
-    summary { font-weight: bold; list-style: none; display: flex; justify-content: space-between; align-items: center; }
-    .btn-donar-verde { background: var(--verde-fuerte); color: white; border: none; padding: 10px 25px; border-radius: 8px; margin-top: 15px; cursor: pointer; font-weight: bold; }
+    /* Estilos para el bloque de Impacto y Cuidados (Izquierda) */
+    .left-info-card { margin-top: 25px; padding-top: 25px; border-top: 1px solid #eee; }
+    .ficha-co2-banner { border: 1px solid var(--verde-fuerte); background: #f0fdf4; border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; color: var(--verde-fuerte); font-size: 13.5px; font-weight: 600; margin-bottom: 12px; }
+    .ficha-cuidados-box { padding: 14px 16px; background: #fafafa; border: 1px solid #eee; border-left: 4px solid var(--verde-claro); border-radius: 8px; font-size: 13.5px; color: #555; line-height: 1.6; }
 
-    /* Modales */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: none; align-items: center; justify-content: center; }
-    .modal-card { 
-        background: white; 
-        width: 500px; 
-        border-radius: 20px; 
-        padding: 35px; 
-        position: relative; 
-        box-sizing: border-box; 
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
-        max-height: 90vh; /* Scroll interno para pantallas pequeñas */
-        overflow-y: auto; 
-    }
-    .modal-card::-webkit-scrollbar { width: 8px; }
-    .modal-card::-webkit-scrollbar-thumb { background: var(--verde-claro); border-radius: 10px; }
-
-    /* Botón X superior derecho */
-    .close-x { 
-        position: absolute; 
-        right: 15px; 
-        top: 15px; 
-        font-size: 24px; 
-        border: none; 
-        background: none; 
-        cursor: pointer; 
-        color: #888; 
-        transition: 0.3s; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        padding: 5px; 
-    }
-    .close-x:hover { color: var(--verde-fuerte); transform: scale(1.1); }
-
-    /* Formulario */
+    /* Estilos de Modales */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: none; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; }
+    .modal-card { background: white; width: 500px; border-radius: 20px; padding: 35px; position: relative; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+    .close-x { position: absolute; right: 15px; top: 15px; font-size: 24px; border: none; background: none; cursor: pointer; color: #888; padding: 5px; }
     .label-bold { display: block; font-size: 14px; font-weight: bold; margin: 15px 0 8px; color: #333; }
-    .input-field { width: 100%; padding: 12px; border: 1px solid var(--gris-borde); border-radius: 10px; box-sizing: border-box; font-size: 14px; }
-    .row-inputs { display: flex; gap: 15px; margin-bottom: 10px; }
-    .group-input { flex: 1; }
-    .group-input label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 4px; }
-
-    /* Grid de Métodos de Pago */
-    .metodo-pago-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .pago-card { border: 1px solid var(--gris-borde); border-radius: 12px; padding: 15px 5px; text-align: center; cursor: pointer; transition: 0.3s; background: white; display: flex; flex-direction: column; align-items: center; }
-    .pago-card input { display: none; }
-    .pago-card i { display: block; font-size: 24px; color: var(--verde-fuerte); margin-bottom: 5px; }
-    .pago-card span { font-size: 13px; font-weight: 600; color: #333; }
-    .pago-card:has(input:checked) { border: 2px solid var(--verde-fuerte); background: #f0fdf4; }
-
-    /* Selectores Adopción */
-    .selector-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .option-card { border: 1px solid var(--gris-borde); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
-    .option-card input { display: none; }
-    .option-card i { display: block; font-size: 22px; color: var(--verde-claro); margin-bottom: 5px; }
-    .option-card span { font-size: 12px; font-weight: 600; }
-    .option-card:has(input:checked) { border-color: var(--verde-claro); background: #f0fdf4; box-shadow: 0 0 0 1px var(--verde-claro); }
-
-    .btn-confirm-pago { width: 100%; background: var(--verde-fuerte); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 15px; transition: 0.3s; }
+    .input-field { width: 100%; padding: 12px; border: 1px solid var(--gris-borde); border-radius: 10px; box-sizing: border-box; font-size: 14px; font-family: 'Poppins', sans-serif; }
+    .row-inputs { display: flex; gap: 15px; margin-bottom: 10px; } .group-input { flex: 1; } .group-input label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 4px; }
+    .metodo-pago-grid, .selector-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .pago-card, .option-card { border: 1px solid var(--gris-borde); border-radius: 12px; padding: 15px 5px; text-align: center; cursor: pointer; background: white; display: flex; flex-direction: column; align-items: center; }
+    .pago-card input, .option-card input { display: none; }
+    .pago-card i, .option-card i { font-size: 24px; color: var(--verde-fuerte); margin-bottom: 5px; }
+    .pago-card span, .option-card span { font-size: 13px; font-weight: 600; color: #333; }
+    .pago-card:has(input:checked), .option-card:has(input:checked) { border: 2px solid var(--verde-fuerte); background: #f0fdf4; }
+    .btn-confirm-pago { width: 100%; background: var(--verde-fuerte); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 15px; font-family: 'Poppins', sans-serif; }
 </style>
 
 <main class="container container-section-arbol">
+    <!-- COLUMNA IZQUIERDA -->
     <div class="column-left">
-        <img src="../assets/img/arboles/<?php echo $arbol['imagen']; ?>" class="main-img">
-        <div style="margin-top: 30px;">
-            <h4 style="color: var(--verde-claro); font-size: 1.5rem;">Datos <strong>interesantes</strong></h4>
-            <p style="line-height: 1.6; color: #444;"><?php echo htmlspecialchars($arbol['datos_interesantes']); ?></p>
+        <img src="<?php echo htmlspecialchars($arbol->imagen); ?>" class="main-img" alt="<?php echo htmlspecialchars($arbol->nombre_comun); ?>">
+        
+        <div style="margin-top: 28px;">
+            <h4 style="color: var(--verde-claro); font-size: 1.4rem; margin-bottom: 8px;">Datos <strong>interesantes</strong></h4>
+            <p style="line-height: 1.6; color: #444; margin: 0;"><?php echo htmlspecialchars($arbol->datos_interesantes); ?></p>
+        </div>
+
+        <!-- Nuevo bloque izquierdo para equilibrar el espacio -->
+        <div class="left-info-card">
+            <h4 style="color: var(--verde-claro); font-size: 1.25rem; margin-bottom: 14px;">Impacto <strong>ambiental y cuidados</strong></h4>
+            
+            <div class="ficha-co2-banner">
+                <span><i class="ri-leaf-line" style="margin-right: 6px;"></i> Captura ambiental estimada</span>
+                <span><?php echo htmlspecialchars($co2); ?></span>
+            </div>
+
+            <div class="ficha-cuidados-box">
+                <div style="margin-bottom: 6px;">
+                    <strong style="color: var(--verde-fuerte);"><i class="ri-seedling-line"></i> Suelo ideal:</strong> <?php echo htmlspecialchars($suelo); ?>
+                </div>
+                <div>
+                    <strong style="color: var(--verde-fuerte);"><i class="ri-heart-pulse-line"></i> Mantenimiento:</strong> <?php echo htmlspecialchars($cuidados); ?>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- COLUMNA DERECHA -->
     <div class="column-right">
-        <h1 style="font-size: 2.2rem; margin-bottom: 10px;"><?php echo htmlspecialchars($arbol['nombre_cientifico']); ?></h1>
-        <p style="color: #777; margin-bottom: 30px;">¡Gracias por dar este paso! Estás contribuyendo directamente a un futuro más sostenible.</p>
+        <span style="display: inline-block; background: #f0fdf4; color: var(--verde-fuerte); font-weight: 600; font-size: 13px; padding: 4px 12px; border-radius: 20px; margin-bottom: 8px; border: 1px solid #dcfce7;">
+            <?php echo htmlspecialchars($arbol->nombre_comun); ?>
+        </span>
+        <h1 style="font-size: 2.2rem; margin-bottom: 10px;"><?php echo htmlspecialchars($arbol->nombre_cientifico); ?></h1>
+        <p style="color: #777; margin-bottom: 25px;">¡Gracias por dar este paso! Estás contribuyendo directamente a un futuro más sostenible.</p>
         
-        <div style="display: flex; gap: 10px; margin-bottom: 40px;">
+        <div style="display: flex; gap: 10px; margin-bottom: 30px;">
             <div style="display: flex; align-items: center; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
                 <button id="decrement" style="padding: 10px 15px; border: none; background: #eee; cursor: pointer; font-weight: bold;">-</button>
-                <input type="text" class="input-quantity" value="1" readonly style="width: 40px; text-align: center; border: none; font-weight: bold;">
+                <input type="text" class="input-quantity" value="1" readonly style="width: 40px; text-align: center; border: none; font-weight: bold; font-family: 'Poppins', sans-serif;">
                 <button id="increment" style="padding: 10px 15px; border: none; background: #eee; cursor: pointer; font-weight: bold;">+</button>
             </div>
-            <button onclick="abrirModal('modalAdopcion')" style="background: #1a3c1a; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; flex: 1; font-weight: bold; font-size: 1rem;">
+            <button onclick="abrirModal('modalAdopcion')" style="background: #1a3c1a; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; flex: 1; font-weight: bold; font-size: 1rem; font-family: 'Poppins', sans-serif;">
                 + Adoptar árbol
             </button>
         </div>
 
         <details open>
             <summary>Descripción <i class="ri-arrow-down-s-line"></i></summary>
-            <div style="padding: 15px 0; color: #555; line-height: 1.7;"><?php echo htmlspecialchars($arbol['descripcion_larga']); ?></div>
+            <div style="padding: 12px 0 5px; color: #555; line-height: 1.7;"><?php echo htmlspecialchars($arbol->descripcion_larga); ?></div>
+        </details>
+
+        <!-- Acordeón compacto de 2x2 -->
+        <details open>
+            <summary>Ficha botánica <i class="ri-arrow-down-s-line"></i></summary>
+            <div style="padding: 5px 0 8px;">
+                <div class="ficha-botanica-grid">
+                    <div class="ficha-item">
+                        <i class="ri-ruler-2-line"></i>
+                        <div class="ficha-item-text">
+                            <span class="ficha-label">Altura promedio</span>
+                            <span class="ficha-value"><?php echo htmlspecialchars($altura); ?></span>
+                        </div>
+                    </div>
+                    <div class="ficha-item">
+                        <i class="ri-calendar-event-line"></i>
+                        <div class="ficha-item-text">
+                            <span class="ficha-label">Floración</span>
+                            <span class="ficha-value"><?php echo htmlspecialchars($epoca); ?></span>
+                        </div>
+                    </div>
+                    <div class="ficha-item">
+                        <i class="ri-drop-line"></i>
+                        <div class="ficha-item-text">
+                            <span class="ficha-label">Riego</span>
+                            <span class="ficha-value"><?php echo htmlspecialchars($riego); ?></span>
+                        </div>
+                    </div>
+                    <div class="ficha-item">
+                        <i class="ri-sun-line"></i>
+                        <div class="ficha-item-text">
+                            <span class="ficha-label">Exposición</span>
+                            <span class="ficha-value"><?php echo htmlspecialchars($sol); ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </details>
 
         <details>
@@ -142,39 +169,24 @@ include("../includes/header.php");
     <div class="modal-card">
         <button type="button" class="close-x" onclick="cerrarModal('modalAdopcion')"><i class="ri-close-line"></i></button>
         <h3 style="color: var(--verde-claro); margin-bottom: 5px;">Apadrina tu próximo Árbol</h3>
-        
         <form action="procesar_adopcion.php" method="POST">
-            <input type="hidden" name="id_arbol" value="<?php echo $arbol['id_arbol']; ?>">
-            
+            <input type="hidden" name="id_arbol" value="<?php echo $arbol->id_arbol; ?>">
             <label class="label-bold">Nombre para tu futuro árbol</label>
             <input type="text" name="nombre_personalizado" placeholder="Ej. Roble" required class="input-field">
-
             <label class="label-bold">¿Cómo deseas adoptar?</label>
             <div class="selector-grid">
                 <label class="option-card"><input type="radio" name="tipo_adopcion" value="Individual" checked><i class="ri-user-line"></i><span>Individual</span></label>
                 <label class="option-card"><input type="radio" name="tipo_adopcion" value="Amigos"><i class="ri-group-line"></i><span>Amigos</span></label>
                 <label class="option-card"><input type="radio" name="tipo_adopcion" value="Familia"><i class="ri-home-line"></i><span>Familia</span></label>
             </div>
-
             <label class="label-bold">Monto de aportación (MXN)</label>
             <input type="number" name="monto" value="500" required class="input-field">
-
             <label class="label-bold">Método de pago</label>
             <div class="metodo-pago-grid">
-                <label class="pago-card">
-                    <input type="radio" name="metodo_pago" value="Tarjeta" checked onchange="toggleFacturacion(this, 'modalAdopcion')">
-                    <i class="ri-visa-line"></i><span>Tarjeta</span>
-                </label>
-                <label class="pago-card">
-                    <input type="radio" name="metodo_pago" value="Oxxo" onchange="toggleFacturacion(this, 'modalAdopcion')">
-                    <i class="ri-store-2-line"></i><span>Oxxo</span>
-                </label>
-                <label class="pago-card">
-                    <input type="radio" name="metodo_pago" value="PayPal" onchange="toggleFacturacion(this, 'modalAdopcion')">
-                    <i class="ri-paypal-line"></i><span>PayPal</span>
-                </label>
+                <label class="pago-card"><input type="radio" name="metodo_pago" value="Tarjeta" checked onchange="toggleFacturacion(this, 'modalAdopcion')"><i class="ri-visa-line"></i><span>Tarjeta</span></label>
+                <label class="pago-card"><input type="radio" name="metodo_pago" value="Oxxo" onchange="toggleFacturacion(this, 'modalAdopcion')"><i class="ri-store-2-line"></i><span>Oxxo</span></label>
+                <label class="pago-card"><input type="radio" name="metodo_pago" value="PayPal" onchange="toggleFacturacion(this, 'modalAdopcion')"><i class="ri-paypal-line"></i><span>PayPal</span></label>
             </div>
-
             <div class="seccion-datos-tarjeta">
                 <label class="label-bold">Datos de facturación</label>
                 <div class="row-inputs">
@@ -183,10 +195,9 @@ include("../includes/header.php");
                 </div>
                 <div class="row-inputs">
                     <div class="group-input"><label>Expira en</label><input type="text" placeholder="MM/YY" maxlength="5" class="input-field expiry-mask"></div>
-                    <div class="group-input"><label>CVV</label><input type="password" pattern="\d*" maxlength="3" placeholder="CVC" class="input-field" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <div class="group-input"><label>CVV</label><input type="password" pattern="\d*" maxlength="3" placeholder="CVC" class="input-field" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
                 </div>
             </div>
-
             <button type="submit" class="btn-confirm-pago">Apadrinar Ahora</button>
         </form>
     </div>
@@ -196,31 +207,18 @@ include("../includes/header.php");
     <div class="modal-card">
         <button type="button" class="close-x" onclick="cerrarModal('modalDonar')"><i class="ri-close-line"></i></button>
         <h3 style="color: var(--verde-claro); margin-bottom: 5px;">Hacer una Donación</h3>
-        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Para el mantenimiento de: <strong><?php echo $arbol['nombre_comun']; ?></strong></p>
-        
+        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Para el mantenimiento de: <strong><?php echo htmlspecialchars($arbol->nombre_comun); ?></strong></p>
         <form action="procesar_adopcion.php" method="POST">
-            <input type="hidden" name="id_arbol" value="<?php echo $arbol['id_arbol']; ?>">
+            <input type="hidden" name="id_arbol" value="<?php echo $arbol->id_arbol; ?>">
             <input type="hidden" name="tipo_adopcion" value="Donación">
-
             <label class="label-bold">¿Cuánto deseas donar?</label>
             <input type="number" name="monto" placeholder="Monto libre (MXN)" required class="input-field">
-
             <label class="label-bold">Método de pago</label>
             <div class="metodo-pago-grid">
-                <label class="pago-card">
-                    <input type="radio" name="metodo_pago" value="Tarjeta" checked onchange="toggleFacturacion(this, 'modalDonar')">
-                    <i class="ri-visa-line"></i><span>Tarjeta</span>
-                </label>
-                <label class="pago-card">
-                    <input type="radio" name="metodo_pago" value="Oxxo" onchange="toggleFacturacion(this, 'modalDonar')">
-                    <i class="ri-store-2-line"></i><span>Oxxo</span>
-                </label>
-                <label class="pago-card">
-                    <input type="radio" name="metodo_pago" value="PayPal" onchange="toggleFacturacion(this, 'modalDonar')">
-                    <i class="ri-paypal-line"></i><span>PayPal</span>
-                </label>
+                <label class="pago-card"><input type="radio" name="metodo_pago" value="Tarjeta" checked onchange="toggleFacturacion(this, 'modalDonar')"><i class="ri-visa-line"></i><span>Tarjeta</span></label>
+                <label class="pago-card"><input type="radio" name="metodo_pago" value="Oxxo" onchange="toggleFacturacion(this, 'modalDonar')"><i class="ri-store-2-line"></i><span>Oxxo</span></label>
+                <label class="pago-card"><input type="radio" name="metodo_pago" value="PayPal" onchange="toggleFacturacion(this, 'modalDonar')"><i class="ri-paypal-line"></i><span>PayPal</span></label>
             </div>
-
             <div class="seccion-datos-tarjeta">
                 <label class="label-bold">Datos de facturación</label>
                 <div class="row-inputs">
@@ -229,10 +227,9 @@ include("../includes/header.php");
                 </div>
                 <div class="row-inputs">
                     <div class="group-input"><label>Expira en</label><input type="text" placeholder="MM/YY" maxlength="5" class="input-field expiry-mask"></div>
-                    <div class="group-input"><label>CVV</label><input type="text" pattern="\d*" maxlength="3" placeholder="Número de seguridad" class="input-field" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <div class="group-input"><label>CVV</label><input type="text" pattern="\d*" maxlength="3" placeholder="Número de seguridad" class="input-field" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></div>
                 </div>
             </div>
-
             <button type="submit" class="btn-confirm-pago">Donar Ahora</button>
         </form>
     </div>
@@ -243,20 +240,12 @@ include("../includes/header.php");
     const inputQty = document.querySelector('.input-quantity');
     document.querySelector('#increment').onclick = () => inputQty.value = parseInt(inputQty.value) + 1;
     document.querySelector('#decrement').onclick = () => { if(parseInt(inputQty.value) > 1) inputQty.value = parseInt(inputQty.value) - 1; };
-
     function abrirModal(id) { document.getElementById(id).style.display = 'flex'; document.body.style.overflow = 'hidden'; }
     function cerrarModal(id) { document.getElementById(id).style.display = 'none'; document.body.style.overflow = 'auto'; }
-
     function toggleFacturacion(radio, modalId) {
         const seccion = document.querySelector(`#${modalId} .seccion-datos-tarjeta`);
-        if(radio.value === 'Tarjeta') {
-            seccion.style.display = 'block';
-        } else {
-            seccion.style.display = 'none';
-        }
+        if(radio.value === 'Tarjeta') { seccion.style.display = 'block'; } else { seccion.style.display = 'none'; }
     }
-
-    // Máscara Número Tarjeta
     document.querySelectorAll('.card-mask').forEach(input => {
         input.addEventListener('input', (e) => {
             let v = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/g, '');
@@ -265,8 +254,6 @@ include("../includes/header.php");
             e.target.value = parts.join(' ');
         });
     });
-
-    // Máscara Fecha Expiración MM/YY
     document.querySelectorAll('.expiry-mask').forEach(input => {
         input.addEventListener('input', (e) => {
             let v = e.target.value.replace(/[^0-9]/g, ''); 
@@ -274,20 +261,11 @@ include("../includes/header.php");
             e.target.value = v;
         });
     });
-
     window.onclick = (e) => { if (e.target.className === 'modal-overlay') { e.target.style.display = 'none'; document.body.style.overflow = 'auto'; } };
 
-    // Corrección del Bucle de Alerta
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('status') === 'adoptado') {
-        Swal.fire({ 
-            title: '¡Gracias!', 
-            text: 'Registro completado con éxito', 
-            icon: 'success', 
-            confirmButtonColor: '#4a6733' 
-        });
-
-        // Limpia la URL sin recargar la página
+        Swal.fire({ title: '¡Gracias!', text: 'Registro completado con éxito', icon: 'success', confirmButtonColor: '#4a6733' });
         const idArbol = urlParams.get('id');
         const nuevaUrl = window.location.pathname + '?id=' + idArbol;
         window.history.replaceState({}, document.title, nuevaUrl);
