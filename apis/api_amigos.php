@@ -482,6 +482,73 @@ try {
         ]);
     }
 
+    
+    // ==========================================
+    // 6. LISTAR SOLICITUDES ENVIADAS
+    // ==========================================
+
+    if ($accion === 'enviadas') {
+
+        $emailUsuario = strtolower(trim($_GET['email_usuario'] ?? ''));
+
+        if (empty($emailUsuario)) {
+            responder([
+                'success' => false,
+                'mensaje' => 'Falta el correo del usuario.'
+            ], 400);
+        }
+
+        $query = new MongoDB\Driver\Query([
+            'email_remitente' => $emailUsuario,
+            'estado' => 'pendiente'
+        ]);
+
+        $cursor = $conexion->executeQuery(
+            "ArbolBD.solicitudes_amigos",
+            $query
+        );
+
+        $solicitudes = [];
+
+        foreach ($cursor as $solicitud) {
+
+            $emailDestinatario = $solicitud->email_destinatario ?? '';
+
+            $queryUsuario = new MongoDB\Driver\Query(
+                [
+                    'email' => $emailDestinatario
+                ],
+                [
+                    'projection' => [
+                        'password' => 0
+                    ],
+                    'limit' => 1
+                ]
+            );
+
+            $usuarios = $conexion->executeQuery(
+                "ArbolBD.usuarios",
+                $queryUsuario
+            );
+
+            foreach ($usuarios as $usuario) {
+                $solicitudes[] = [
+                    'email' => $usuario->email ?? '',
+                    'nombre_usuario' => $usuario->nombre_usuario ?? '',
+                    'foto_perfil' => $usuario->foto_perfil ?? null,
+                    'bio' => $usuario->bio ?? '',
+                    'fecha' => $solicitud->fecha ?? ''
+                ];
+            }
+        }
+
+        responder([
+            'success' => true,
+            'solicitudes' => $solicitudes
+        ]);
+    }
+
+
     // ==========================================
     // ACCIÓN NO RECONOCIDA
     // ==========================================
