@@ -1,18 +1,24 @@
 
 <?php
-
 header('Content-Type: application/json; charset=utf-8');
 
-include("../includes/db.php");
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once("../includes/db.php");
 
 try {
 
+    // ==========================================
     // CREAR PUBLICACIÓN
+    // ==========================================
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $datos = json_decode(file_get_contents("php://input"), true);
 
-        if (!$datos) {
+        if (!is_array($datos)) {
+            http_response_code(400);
             echo json_encode([
                 'success' => false,
                 'message' => 'Datos inválidos'
@@ -27,6 +33,7 @@ try {
         $tipo = $datos['tipo_multimedia'] ?? 'image';
 
         if ($email === '' || $nombre === '') {
+            http_response_code(400);
             echo json_encode([
                 'success' => false,
                 'message' => 'Faltan datos del usuario'
@@ -35,17 +42,29 @@ try {
         }
 
         if ($mensaje === '' && empty($imagen)) {
+            http_response_code(400);
             echo json_encode([
                 'success' => false,
-                'message' => 'La publicación necesita texto o multimedia'
+                'message' => 'Escribe algo o selecciona una imagen'
             ]);
             exit;
         }
 
-        if (!in_array($tipo, ['image', 'video'], true)) {
+        // Por ahora solamente permitimos imágenes.
+        if ($tipo !== 'image') {
+            http_response_code(400);
             echo json_encode([
                 'success' => false,
-                'message' => 'Tipo de archivo no válido'
+                'message' => 'Solo se permiten imágenes'
+            ]);
+            exit;
+        }
+
+        if ($imagen !== null && !is_string($imagen)) {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => 'La imagen no es válida'
             ]);
             exit;
         }
@@ -54,8 +73,8 @@ try {
             'email_usuario' => $email,
             'nombre_usuario' => $nombre,
             'mensaje' => $mensaje,
-            'imagen' => $imagen,
-            'tipo_multimedia' => $tipo,
+            'imagen' => $imagen ?: null,
+            'tipo_multimedia' => 'image',
             'fecha' => date('Y-m-d H:i:s'),
             'comentarios' => []
         ];
@@ -68,44 +87,52 @@ try {
         echo json_encode([
             'success' => true,
             'message' => 'Publicación creada correctamente'
-        ]);
+        ], JSON_UNESCAPED_UNICODE);
 
         exit;
     }
 
+    // ==========================================
     // CONSULTAR PUBLICACIONES
+    // ==========================================
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         $opciones = [
             'sort' => ['fecha' => -1]
         ];
 
-        $queryForo = new MongoDB\Driver\Query([], $opciones);
+        $query = new MongoDB\Driver\Query([], $opciones);
 
         $cursor = $conexion->executeQuery(
             'ArbolBD.foro',
-            $queryForo
+            $query
         );
 
         $posts = [];
 
-        foreach ($cursor as $document) {
+        foreach ($cursor as $documento) {
 
             $posts[] = [
-                '_id' => (string)$document->_id,
-                'email_usuario' => $document->email_usuario ?? '',
-                'nombre_usuario' => $document->nombre_usuario ?? '',
-                'mensaje' => $document->mensaje ?? '',
-                'imagen' => $document->imagen ?? null,
-                'tipo_multimedia' => $document->tipo_multimedia ?? 'image',
-                'fecha' => $document->fecha ?? '',
-                'comentarios' => $document->comentarios ?? []
+                '_id' => (string) $documento->_id,
+                'email_usuario' => $documento->email_usuario ?? '',
+                'nombre_usuario' => $documento->nombre_usuario ?? 'Usuario',
+                'mensaje' => $documento->mensaje ?? '',
+                'imagen' => $documento->imagen ?? null,
+                'tipo_multimedia' => $documento->tipo_multimedia ?? 'image',
+                'fecha' => $documento->fecha ?? '',
+                'comentarios' => $documento->comentarios ?? []
             ];
         }
 
-        echo json_encode($posts);
+        echo json_encode(
+            $posts,
+            JSON_UNESCAPED_UNICODE
+        );
+
         exit;
     }
+
+    http_response_code(405);
 
     echo json_encode([
         'success' => false,
@@ -120,6 +147,5 @@ try {
         'success' => false,
         'message' => 'Error del servidor',
         'error' => $e->getMessage()
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
 }
-?>
