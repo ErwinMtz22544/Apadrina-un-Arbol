@@ -1,10 +1,8 @@
 
 <?php
-header('Content-Type: application/json; charset=utf-8');
+ob_start();
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+header('Content-Type: application/json; charset=utf-8');
 
 require_once("../includes/db.php");
 
