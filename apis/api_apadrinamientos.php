@@ -47,7 +47,7 @@ try {
     }
 
     // ==========================================
-    // 1. CREAR APADRINAMIENTO
+    // 1. CREAR APADRINAMIENTO O DONACIÓN
     // ==========================================
 
     if ($accion === 'crear') {
@@ -75,21 +75,22 @@ try {
         ) {
             responder([
                 'success' => false,
-                'mensaje' => 'Faltan datos para realizar el apadrinamiento.'
+                'mensaje' => 'Faltan datos para realizar el registro.'
             ], 400);
         }
 
-        // Validar tipo de adopción
+        // Validar tipo de apadrinamiento o donación
         $tiposPermitidos = [
             'Individual',
             'Amigos',
-            'Familia'
+            'Familia',
+            'Donación'
         ];
 
         if (!in_array($tipoAdopcion, $tiposPermitidos, true)) {
             responder([
                 'success' => false,
-                'mensaje' => 'El tipo de apadrinamiento no es válido.'
+                'mensaje' => 'El tipo de registro no es válido.'
             ], 400);
         }
 
@@ -159,7 +160,9 @@ try {
 
         responder([
             'success' => true,
-            'mensaje' => '¡Tu árbol ha sido apadrinado!',
+            'mensaje' => $tipoAdopcion === 'Donación'
+                ? '¡Tu donación se registró correctamente!'
+                : '¡Tu árbol ha sido apadrinado!',
             'apadrinamiento' => $documento
         ]);
     }
