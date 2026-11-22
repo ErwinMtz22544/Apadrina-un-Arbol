@@ -5,18 +5,19 @@ require_once __DIR__ . '/../includes/session.php';
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
     <title>Recuperar Contraseña</title>
 </head>
 <body class="contact-body">
-    <?php 
-    
-    include("../includes/header.php"); ?>
-        <nav class="breadcrumbs container">
-        <a href="/index.php">Inicio</a>
+    <?php include("../includes/header.php"); ?>
+
+    <nav class="breadcrumbs container">
+        <a href="<?php echo $base_url; ?>/index.php">Inicio</a>
         <span class="separator">/</span>
-        <span class="current">Iniciar Sesión</span>
+        <span class="current">Recuperar Contraseña</span>
     </nav>
+
     <section class="container">
         <div class="contact-container login-container">
             <form action="../includes/recuperar_be.php" method="POST" class="f-left" id="formRecuperar">
@@ -42,6 +43,19 @@ require_once __DIR__ . '/../includes/session.php';
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/assets/js/login.js"></script>
+    <script src="../assets/js/login.js"></script>
+    <script>
+        const paramsRec = new URLSearchParams(window.location.search);
+        if (paramsRec.get('error') === 'error_envio') {
+            Swal.fire({
+                title: 'Error al enviar',
+                text: 'No pudimos enviar el correo de recuperación. Intenta de nuevo en unos minutos.',
+                icon: 'error',
+                confirmButtonColor: '#5D8736'
+            });
+        }
+    </script>
+
+    <?php include("../includes/footer.php"); ?>
 </body>
 </html>

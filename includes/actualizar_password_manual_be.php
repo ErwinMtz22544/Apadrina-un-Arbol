@@ -2,29 +2,55 @@
 include 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'];
-    $token = $_POST['token'];
-    $nueva_pass = $_POST['nueva_pass'];
+    $email = trim($_POST['email'] ?? '');
+    $token = trim($_POST['token'] ?? '');
+    $nueva_pass = $_POST['nueva_pass'] ?? '';
+    $confirmar_pass = $_POST['confirmar_pass'] ?? '';
 
-    // encriptacion de la nueva contra
+    if (empty($email) || empty($token)) {
+        header("Location: ../pages/login.php?error=link_invalido");
+        exit();
+    }
+
+    $volver = "../pages/restablecer.php?token=" . urlencode($token) . "&email=" . urlencode($email);
+
+    // Validar requisitos de seguridad
+    $cumpleSeguridad =
+        strlen($nueva_pass) >= 8 &&
+        preg_match('/[A-Z]/', $nueva_pass) &&
+        preg_match('/[a-z]/', $nueva_pass) &&
+        preg_match('/[0-9]/', $nueva_pass) &&
+        preg_match('/[^A-Za-z0-9\s]/', $nueva_pass);
+
+    if (!$cumpleSeguridad) {
+        header("Location: " . $volver . "&error=requisitos");
+        exit();
+    }
+
+    if ($nueva_pass !== $confirmar_pass) {
+        header("Location: " . $volver . "&error=no_coinciden");
+        exit();
+    }
+
     $pass_encriptada = password_hash($nueva_pass, PASSWORD_BCRYPT);
 
-    // Actualizar la contraseña y LIMPIAR el token
+    // Actualizar contraseña, limpiar token y desactivar bandera temporal
     $bulk = new MongoDB\Driver\BulkWrite;
     $bulk->update(
         ['email' => $email, 'token' => $token],
-        ['$set' => ['password' => $pass_encriptada, 'token' => null]]
+        ['$set' => [
+            'password' => $pass_encriptada,
+            'token' => null,
+            'debe_cambiar_password' => 0
+        ]]
     );
 
     try {
         $resultado = $conexion->executeBulkWrite('ArbolBD.usuarios', $bulk);
-        
-        // 4. Verificar si la actualización fue exitosa
+
         if ($resultado->getModifiedCount() > 0) {
-            // Redirige al login con éxito, cuando eso pasa se muestran las alertas 
             header("Location: ../pages/login.php?res=pass_actualizada");
         } else {
-            // Si algo falló (por ejemplo, el token ya no existía)
             header("Location: ../pages/login.php?error=link_invalido");
         }
     } catch (Exception $e) {

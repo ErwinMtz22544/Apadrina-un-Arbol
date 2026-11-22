@@ -11,7 +11,7 @@
     include("../includes/header.php");
     ?>
     <nav class="breadcrumbs container">
-        <a href="/Apadrina-un-Arbol/index.php">Inicio</a>
+        <a href="<?php echo $base_url; ?>/index.php">Inicio</a>
         <span class="separator">/</span>
         <span class="current">Colaboradores</span>
     </nav>

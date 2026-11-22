@@ -64,10 +64,9 @@ include("../../includes/header.php");
             title: '¡Mensaje Recibido!',
             text: 'Tu duda ha sido enviada al equipo de la UTSC. Te responderemos pronto.',
             icon: 'success',
-            confirmButtonColor: '#5D8736', // Tu verde corporativo
+            confirmButtonColor: '#5D8736', 
             timer: 4000
         });
-        // Limpiamos la URL para que no vuelva a salir al recargar
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 </script>

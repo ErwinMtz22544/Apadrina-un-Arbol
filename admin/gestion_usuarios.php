@@ -1,201 +1,221 @@
 <?php
-include 'verificar_admin.php'; 
-include '../includes/db.php'; 
+ob_start();
+session_start();
+date_default_timezone_set('America/Monterrey');
+include("../includes/db.php");
 
-// 1. Obtener mensajes (leido = 0 primero, luego por fecha)
-$query_mensajes = new MongoDB\Driver\Query([], ['sort' => ['fecha' => -1]]);$mensajes = $conexion->executeQuery('ArbolBD.mensajes_soporte',$query_mensajes)->toArray();
+// Verificación de seguridad
+if (!isset($_SESSION['rol']) || ($_SESSION['rol'] !== 'admin' && $_SESSION['rol'] != 1)) {
+    header("Location: ../pages/login.php");
+    exit();
+}
 
-// 2. Contar mensajes pendientes
-$query_pendientes = new MongoDB\Driver\Query(['leido' => 0]);$total_pendientes = count($conexion->executeQuery('ArbolBD.mensajes_soporte',$query_pendientes)->toArray());
-
-// 3. Usuarios y Roles
-$query_usuarios = new MongoDB\Driver\Query([], ['sort' => ['id_rol' => 1, 'nombre_usuario' => 1]]);
-$usuarios =$conexion->executeQuery('ArbolBD.usuarios', $query_usuarios)->toArray();$nombres_roles = [1 => 'Admin', 2 => 'Editor', 3 => 'Usuario'];
-
-// 4. Historial
-$query_historial = new MongoDB\Driver\Query([], ['sort' => ['fecha_limpieza' => -1], 'limit' => 5]);$historial = $conexion->executeQuery('ArbolBD.historial_limpieza',$query_historial)->toArray();
+// Obtener todos los usuarios de la base de datos
+$queryUsuarios = new MongoDB\Driver\Query([]);
+$usuarios = $conexion->executeQuery("ArbolBD.usuarios", $queryUsuarios)->toArray();
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
-    <title>Panel de Administración - Apadrina un Árbol</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios | Panel Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* Tus estilos originales se mantienen intactos */
-        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 40px 20px; }
-        .admin-container { max-width: 1200px; margin: 0 auto; background: #ffffff; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .section-title { font-size: 28px; font-weight: 600; color: #1a1a1a; margin-bottom: 5px; display: flex; align-items: center; gap: 12px; }
-        .section-subtitle { font-size: 14px; color: #777; margin-bottom: 30px; }
-        .top-bar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
-        .btn-action { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; }
-        .btn-green { background-color: #5D8736; color: white; }
-        .btn-green:hover { background-color: #4a6d2b; }
-        .admin-table { width: 100%; border-collapse: collapse; margin-bottom: 50px; border-radius: 8px; overflow: hidden; border: 1px solid #eee; }
-        .admin-table thead { background-color: #5D8736; color: white; }
-        .admin-table th, .admin-table td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        .admin-table tbody tr:hover { background-color: #f9fdf7; }
-        .status-ok { color: #28a745; font-weight: 600; }
-        .status-no { color: #dc3545; font-weight: 600; }
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; text-transform: uppercase; font-weight: 600; }
-        .rol-1 { background: #fce4ec; color: #d81b60; } 
-        .rol-3 { background: #e8f5e9; color: #2e7d32; } 
-        hr { border: 0; border-top: 1px solid #eee; margin: 40px 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+        :root { --verde-fuerte: #4a6733; --verde-claro: #5D8736; --bg-color: #f4f7f6; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { display: flex; min-height: 100vh; background-color: var(--bg-color); }
+        
+        /* Sidebar Navigation */
+        .sidebar { width: 260px; background-color: #fff; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; }
+        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px; color: var(--verde-fuerte); font-weight: 700; font-size: 20px; }
+        .sidebar-menu { padding: 20px 0; flex-grow: 1; }
+        .menu-item { padding: 15px 25px; display: flex; align-items: center; gap: 12px; color: #555; text-decoration: none; font-weight: 500; transition: 0.2s; }
+        .menu-item:hover, .menu-item.active { background-color: #f0fdf4; color: var(--verde-fuerte); border-right: 4px solid var(--verde-fuerte); }
+        .menu-item i { font-size: 20px; }
+        .sidebar-footer { padding: 20px; border-top: 1px solid #eee; }
+        .btn-logout { display: flex; align-items: center; gap: 10px; color: #d32f2f; text-decoration: none; font-weight: 600; }
+        
+        /* Contenido Principal */
+        .main-content { margin-left: 260px; padding: 40px; flex-grow: 1; width: calc(100% - 260px); }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .top-bar h1 { color: #222; font-size: 28px; }
+        
+        /* Botones de acción superior */
+        .header-actions { display: flex; gap: 15px; }
+        .btn-limpiar { background-color: var(--verde-claro); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; text-decoration: none; transition: 0.3s; }
+        .btn-limpiar:hover { background-color: var(--verde-fuerte); }
+
+        /* Tabla de Usuarios */
+        .table-container { background: #fff; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); overflow: hidden; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background-color: var(--verde-fuerte); padding: 18px 25px; color: white; font-size: 14px; text-transform: uppercase; font-weight: 600; }
+        td { padding: 18px 25px; border-bottom: 1px solid #eee; color: #444; font-size: 14px; vertical-align: middle; }
+        tr:hover { background-color: #fcfcfc; }
+        
+        /* Badges de Roles */
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; display: inline-block; text-align: center; min-width: 70px; }
+        .badge-admin { background-color: #ffebee; color: #c62828; }
+        .badge-editor { background-color: #e3f2fd; color: #1565c0; }
+        .badge-user { background-color: #f5f5f5; color: #616161; }
+        
+        /* Controles de tabla */
+        select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins'; outline: none; margin-right: 10px; }
+        .btn-actualizar { background: var(--verde-claro); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-actualizar:hover { background: var(--verde-fuerte); }
+        .btn-key { background: #ffca28; color: #333; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .btn-key:hover { background: #ffb300; }
     </style>
 </head>
 <body>
 
-<div class="admin-container">
-    <div class="top-bar">
-        <button onclick="limpiezaMasiva()" class="btn-action btn-green"><i class="ri-brush-line"></i> Limpiar Usuarios Fantasma</button>
-        <a href="../index.php" class="btn-action btn-green"><i class="ri-home-4-line"></i> Regresar a inicio</a>
-    </div>
+    <!-- Menú Lateral Unificado -->
+    <aside class="sidebar">
+        <div class="sidebar-header"><i class="ri-tree-fill"></i> Panel Admin</div>
+        <nav class="sidebar-menu">
+            <a href="index.php" class="menu-item"><i class="ri-dashboard-line"></i> Dashboard</a>
+            <a href="gestion_usuarios.php" class="menu-item active"><i class="ri-group-line"></i> Usuarios</a>
+            <a href="gestion_catalogo.php" class="menu-item"><i class="ri-plant-line"></i> Catálogo de Árboles</a>
+            <a href="buzon_mensajes.php" class="menu-item"><i class="ri-mail-unread-line"></i> Buzón de Soporte</a>
+            <a href="moderacion_foro.php" class="menu-item"><i class="ri-shield-check-line"></i> Moderación Foro</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="../index.php" class="btn-logout" style="color: var(--verde-fuerte); margin-bottom: 15px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                <i class="ri-home-smile-line" style="font-size: 20px;"></i> Ir a la página web
+            </a>
+            
+            <a href="../includes/cerrar_sesion.php" class="btn-logout">
+                <i class="ri-logout-box-r-line"></i> Cerrar Sesión
+            </a>
+        </div>
+    </aside>
 
-    <h1 class="section-title">👥 Monitoreo de Accesos y Usuarios</h1>
-    <p class="section-subtitle">Gestión de niveles de acceso y estado de verificación de la comunidad.</p>
+    <main class="main-content">
+        <div class="top-bar">
+            <div>
+                <h1>Gestión de Usuarios</h1>
+                <p style="color: #666;">Monitoreo de niveles de acceso y estado de verificación.</p>
+            </div>
+            <div class="header-actions">
+                <a href="limpiar_usuario_fantasma.php" class="btn-limpiar"><i class="ri-user-unfollow-line"></i> Limpiar Fantasmas</a>
+            </div>
+        </div>
 
-    <table class="admin-table">
-        <thead>
-            <tr><th>ID</th><th>Usuario</th><th>Email</th><th>Rol</th><th>Verificado</th><th>Acciones</th></tr>
-        </thead>
-        <tbody>
-            <?php foreach($usuarios as$user): ?>
-            <tr>
-                <td><?php echo isset($user->id) ?$user->id : 'N/A'; ?></td>
-                <td><strong><?php echo $user->nombre_usuario; ?></strong></td>
-                <td><?php echo $user->email; ?></td>
-                <td><span class="badge rol-<?php echo $user->id_rol; ?>"><?php echo isset($nombres_roles[$user->id_rol]) ? $nombres_roles[$user->id_rol] : 'Desconocido'; ?></span></td>
-                <td><?php echo (isset($user->verificado) &&$user->verificado == 1) ? '<span class="status-ok">Sí</span>' : '<span class="status-no">No</span>'; ?></td>
-                <td>
-                    <form action="actualizar_rol.php" method="POST" style="display:inline;">
-                        <input type="hidden" name="id_usuario" value="<?php echo isset($user->id) ?$user->id : ''; ?>">
-                        <select name="nuevo_rol" style="padding: 5px; border-radius: 4px; border: 1px solid #ddd;">
-                            <option value="1" <?php if($user->id_rol == 1) echo 'selected'; ?>>Admin</option>
-                            <option value="2" <?php if($user->id_rol == 2) echo 'selected'; ?>>Editor</option>
-                            <option value="3" <?php if($user->id_rol == 3) echo 'selected'; ?>>Usuario</option>
-                        </select>
-                        <button type="submit" style="background: #28a745; color: white; border: none; padding: 6px 10px; cursor: pointer; border-radius: 4px; margin-left: 5px;">Actualizar</button>
-                    </form>
-                    <button onclick="cambiarPassword(<?php echo isset($user->id) ? $user->id : 0; ?>, '<?php echo$user->nombre_usuario; ?>')" style="background: #ffc107; color: black; border: none; padding: 6px 10px; cursor: pointer; border-radius: 4px; margin-left: 5px;"><i class="ri-key-line"></i></button>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Rol Actual</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($usuarios as $user): ?>
+                    <?php $nombreMostrar = $user->nombre ?? $user->nombre_usuario ?? 'N/A'; ?>
+                    <tr>
+                        <td style="color: #888; font-size: 12px;"><?php echo substr((string)$user->_id, -6); ?></td>
+                        <td style="font-weight: 600;"><?php echo htmlspecialchars($nombreMostrar); ?></td>
+                        <td><?php echo htmlspecialchars($user->email ?? 'N/A'); ?></td>
+                        
+                        <?php 
+                            $rol = strtolower($user->rol ?? '');
+                            if (empty($rol)) {
+                                $rol = ($user->id_rol == 1) ? 'admin' : (($user->id_rol == 2) ? 'editor' : 'usuario');
+                            }
+                            $claseBadge = ($rol == 'admin') ? 'badge-admin' : (($rol == 'editor') ? 'badge-editor' : 'badge-user');
+                        ?>
+                        <td><span class="badge <?php echo $claseBadge; ?>"><?php echo strtoupper($rol); ?></span></td>
+                        
+                        <td style="white-space: nowrap; display: flex; align-items: center; gap: 15px;">
+                            <!-- Formulario para cambiar el rol -->
+                            <form action="actualizar_rol.php" method="POST" style="margin: 0;">
+                                <input type="hidden" name="id_usuario" value="<?php echo (string)$user->_id; ?>">
+                                <select name="nuevo_rol">
+                                    <option value="usuario" <?php if($rol == 'usuario') echo 'selected'; ?>>Usuario</option>
+                                    <option value="editor" <?php if($rol == 'editor') echo 'selected'; ?>>Editor</option>
+                                    <option value="admin" <?php if($rol == 'admin') echo 'selected'; ?>>Admin</option>
+                                </select>
+                                <button type="submit" class="btn-actualizar">Actualizar</button>
+                            </form>
+                            
+                            <div style="width: 1px; height: 25px; background-color: #e0e0e0;"></div>
 
-    <hr>
-    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 5px;">
-        <h2 class="section-title" style="margin-bottom: 0;">📬 Buzón de Soporte</h2>
-        <?php if($total_pendientes > 0): ?>
-            <span style="background-color: #ffc107; color: #000; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 5px;"><i class="ri-notification-3-line"></i> <?php echo $total_pendientes; ?> Pendientes</span>
-        <?php else: ?>
-            <span style="background-color: #e8f5e9; color: #2e7d32; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 14px;"><i class="ri-check-line"></i> Al día</span>
-        <?php endif; ?>
-    </div>
-    <p class="section-subtitle">Dudas y reportes enviados por los usuarios desde la sección de ayuda.</p>
-    
-    <table class="admin-table">
-        <thead>
-            <tr><th>Remitente</th><th>Asunto</th><th>Mensaje</th><th>Fecha</th><th>Acciones</th></tr>
-        </thead>
-        <tbody>
-        <?php foreach($mensajes as$msg): ?>
-            <tr style="border-bottom: 1px solid #ddd; <?php echo ($msg->leido == 0) ? 'background-color: #f0fdf4; border-left: 4px solid #5D8736;' : ''; ?>">
-                <td style="padding: 12px;"><strong><?php echo $msg->nombre; ?></strong><br><small><?php echo$msg->email; ?></small></td>
-                <td style="padding: 12px;"><?php echo $msg->asunto; ?></td>
-                <td style="padding: 12px;"><?php echo $msg->mensaje; ?></td>
-                <td style="padding: 12px;"><?php echo isset($msg->fecha) ?$msg->fecha->toDateTime()->setTimezone(new DateTimeZone('America/Monterrey'))->format('d/m/Y H:i') : 'N/A'; ?></td>
-                <td style="padding: 12px; text-align: center;">
-                    <?php if($msg->leido == 0): ?>
-                        <!-- Pasamos el _id de Mongo como string para que JS lo pueda procesar -->
-                        <button onclick="marcarLeido('<?php echo (string)$msg->_id; ?>')" style="background: #ffc107; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-family: 'Poppins', sans-serif;"><i class="ri-check-double-line"></i> Marcar leído</button>
-                    <?php else: ?>
-                        <span style="color: #aaa; font-size: 12px;"><i class="ri-check-line"></i> Atendido</span>
-                    <?php endif; ?>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-            <?php if(count($mensajes) == 0): ?>
-                <tr><td colspan="5" style="text-align: center; color: #999; padding: 20px;">No hay mensajes nuevos.</td></tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+                            <!-- Botón funcional para restablecer contraseña -->
+                            <button type="button"
+                                    class="btn-key"
+                                    title="Restablecer Contraseña"
+                                    data-id="<?php echo (string)$user->_id; ?>"
+                                    data-nombre="<?php echo htmlspecialchars($nombreMostrar, ENT_QUOTES, 'UTF-8'); ?>"
+                                    onclick="restablecerClave(this)"
+                                    style="display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px;">
+                                <i class="ri-key-2-line" style="font-size: 16px;"></i> Restablecer Clave
+                            </button>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </main>
 
-    <hr>
-    <h2 class="section-title">📜 Registro Histórico de Limpiezas</h2>
-    <p class="section-subtitle">Evidencia de mantenimiento del sistema (eliminación de usuarios fantasmas).</p>
-    
-    <table class="admin-table">
-        <thead>
-            <tr><th>Fecha y Hora</th><th>Usuarios Eliminados</th><th>Administrador Responsable</th></tr>
-        </thead>
-        <tbody>
-            <?php foreach($historial as$row): ?>
-            <tr>
-                <td><?php echo isset($row->fecha_limpieza) ? (is_object($row->fecha_limpieza) ? $row->fecha_limpieza->toDateTime()->format('d/m/Y H:i') :$row->fecha_limpieza) : 'N/A'; ?></td>
-                <td><strong><?php echo isset($row->cantidad_eliminados) ?$row->cantidad_eliminados : 0; ?></strong> cuentas</td>
-                <td><?php echo isset($row->admin_que_limpio) ?$row->admin_que_limpio : 'Desconocido'; ?></td>
-            </tr>
-            <?php endforeach; ?>
-            <?php if(count($historial) == 0): ?>
-                <tr><td colspan="3" style="text-align: center; color: #999; padding: 20px;">No se han realizado limpiezas aún.</td></tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
-</div>
+    <script>
+        function restablecerClave(boton) {
+            const idUsuario = boton.dataset.id;
+            const nombreUsuario = boton.dataset.nombre;
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="js/alertas.js"></script>
-<script>
-function limpiezaMasiva() {
-    Swal.fire({
-        title: '¿Ejecutar limpieza general?',
-        text: "Se borrarán todos los usuarios que no verificaron su cuenta en más de 24 horas.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#5D8736',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, limpiar todo',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = "limpiar_usuario_fantasma.php";
-        }
-    })
-}
-
-const urlParams = new URLSearchParams(window.location.search);
-const borrados = urlParams.get('limpieza');
-if (borrados !== null) {
-    Swal.fire({
-        icon: 'success',
-        title: '¡Sistema Limpio!',
-        text: 'Se eliminaron ' + borrados + ' usuarios fantasma.',
-        confirmButtonColor: '#5D8736'
-    });
-    window.history.replaceState({}, document.title, window.location.pathname);
-}
-
-function marcarLeido(id) {
-    fetch(`marcar_mensaje_leido.php?id=${id}`)
-    .then(response => {
-        if(response.ok) {
             Swal.fire({
-                title: '¡Hecho!',
-                text: 'El mensaje ha sido marcado como atendido.',
-                icon: 'success',
-                confirmButtonColor: '#5D8736'
-            }).then(() => {
-                location.reload();
+                title: '¿Restablecer contraseña?',
+                text: `Se generará una nueva clave temporal para ${nombreUsuario}. Su contraseña actual dejará de funcionar.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#5D8736',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, restablecer',
+                cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+                if (!result.isConfirmed) return;
+
+                try {
+                    const formData = new FormData();
+                    formData.append('id_usuario', idUsuario);
+
+                    const response = await fetch('restablecer_clave.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            title: '¡Contraseña Restablecida!',
+                            html: `Nueva clave temporal para <strong>${nombreUsuario}</strong>:<br><br>
+                                   <div style="background:#f4f7f6; padding:12px; border-radius:8px; font-size:20px; font-weight:700; letter-spacing:2px; color:#4a6733; user-select:all;">
+                                       ${data.clave}
+                                   </div>
+                                   <small style="color:#666; display:block; margin-top:10px;">Cópiala y compártela con el usuario (solo se muestra una vez).</small>`,
+                            icon: 'success',
+                            confirmButtonColor: '#5D8736',
+                            confirmButtonText: 'Copiar clave y cerrar'
+                        }).then(() => {
+                            if (navigator.clipboard) {
+                                navigator.clipboard.writeText(data.clave);
+                            }
+                        });
+                    } else {
+                        Swal.fire('Error', data.message || 'No se pudo restablecer la contraseña.', 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Error', 'Hubo un problema de conexión con el servidor.', 'error');
+                }
             });
-        } else {
-            Swal.fire('Error', 'No se pudo actualizar el mensaje.', 'error');
         }
-    });
-}
-</script>
+    </script>
 </body>
 </html>
+<?php ob_end_flush(); ?>

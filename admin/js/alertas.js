@@ -1,4 +1,3 @@
-
 const stylesMensagge = () => {
     const font = Swal.getPopup();
     const title = Swal.getTitle();
@@ -17,42 +16,6 @@ const stylesMensagge = () => {
     }
     if (icon) icon.style.fontSize = '14px';
 };
-
-// 2. Función Cambiar Password 
-const cambiarPassword = (id, nombre) => {
-    Swal.fire({
-        title: `Nueva contraseña para ${nombre}`,
-        input: 'password',
-        inputLabel: 'Introduce la nueva contraseña',
-        inputPlaceholder: 'Mínimo 6 caracteres',
-        showCancelButton: true,
-        confirmButtonColor: '#5D8736',
-        confirmButtonText: 'Actualizar',
-        didOpen: stylesMensagge 
-    }).then((result) => {
-        if (result.isConfirmed && result.value) {
-            if (result.value.length < 6) {
-                Swal.fire({ icon: 'error', title: 'Error', text: 'La contraseña es muy corta', didOpen: stylesMensagge });
-                return;
-            }
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'cambiar_password_admin.php';
-
-            const idInput = document.createElement('input');
-            idInput.type = 'hidden'; idInput.name = 'id_usuario'; idInput.value = id;
-
-            const passInput = document.createElement('input');
-            passInput.type = 'hidden'; passInput.name = 'nueva_pass'; passInput.value = result.value;
-
-            form.appendChild(idInput);
-            form.appendChild(passInput);
-            document.body.appendChild(form);
-            form.submit();
-        }
-    });
-};
-
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -87,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-  
+    // Confirmación para eliminar usuario
     document.querySelectorAll('.form-eliminar').forEach(form => {
         form.addEventListener('submit', (e) => {
             e.preventDefault();

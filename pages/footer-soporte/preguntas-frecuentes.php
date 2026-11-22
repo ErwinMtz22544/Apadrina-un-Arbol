@@ -1,6 +1,6 @@
 <?php 
 session_start(); 
-include("../../includes/header.php"); // Cargamos el CSS y los iconos del header
+include("../../includes/header.php"); 
 ?>
 
 <main class="support-main" style="background-color: var(--bg-main); padding-top: 140px;">

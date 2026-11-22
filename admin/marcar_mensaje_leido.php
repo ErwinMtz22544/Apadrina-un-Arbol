@@ -1,26 +1,27 @@
 <?php
-include 'verificar_admin.php'; 
-include '../includes/db.php';     
+session_start();
+include("../includes/db.php");
 
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    
-    $bulk = new MongoDB\Driver\BulkWrite;
-    $bulk->update(
-        ['_id' => new MongoDB\BSON\ObjectId($id)],
-        ['$set' => ['leido' => 1]]
-    );
-    
-    try {
+// Seguridad
+if (!isset($_SESSION['rol']) || ($_SESSION['rol'] !== 'admin' && $_SESSION['rol'] != 1)) {
+    die("Acceso denegado");
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $id_mensaje = $_POST['id_mensaje'] ?? '';
+
+    if (!empty($id_mensaje)) {
+        $bulk = new MongoDB\Driver\BulkWrite;
+        $bulk->update(
+            ['_id' => new MongoDB\BSON\ObjectId($id_mensaje)],
+            ['$set' => ['leido' => 1]] // 1 significa que ya fue leído
+        );
         $conexion->executeBulkWrite('ArbolBD.mensajes_soporte', $bulk);
-        http_response_code(200);
-        echo "Mensaje marcado como leído";
-    } catch (Exception $e) {
-        http_response_code(500);
-        echo "Error al actualizar: " . $e->getMessage();
     }
+    
+    header("Location: buzon_mensajes.php");
+    exit();
 } else {
-    http_response_code(400);
-    echo "ID no proporcionado";
+    echo "ID no proporcionado o método incorrecto.";
 }
 ?>
